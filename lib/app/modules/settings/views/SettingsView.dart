@@ -1,9 +1,15 @@
+// ---------------- SettingsView مودرن وهادئ ----------------
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/SettingsController.dart';
+import 'dart:io';
 
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
+
+  // 🌿 ألوان هادئة
+  final Color softGreen = const Color(0xFF40DF9F);
+  final Color softGreenLight = const Color(0xFFA8E6CF);
 
   @override
   Widget build(BuildContext context) {
@@ -12,11 +18,11 @@ class SettingsView extends GetView<SettingsController> {
     return Scaffold(
       body: Stack(
         children: [
-          // خلفية Gradient
+          // 🌿 خلفية Gradient هادئة
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.green, Colors.greenAccent],
+                colors: [softGreenLight, softGreen],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -32,16 +38,17 @@ class SettingsView extends GetView<SettingsController> {
             child: Obx(() {
               return Column(
                 children: [
+                  // 🔙 زر الرجوع
                   Align(
                     alignment: Alignment.topLeft,
                     child: IconButton(
                       onPressed: () => Get.back(),
-                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                      icon: Icon(Icons.arrow_back, color: softGreen, size: 28),
                     ),
                   ),
                   const SizedBox(height: 20),
 
-                  // صورة البروفايل مع تعديل
+                  // 👤 صورة البروفايل مع تعديل
                   CircleAvatar(
                     radius: 55,
                     backgroundColor: Colors.white,
@@ -52,12 +59,14 @@ class SettingsView extends GetView<SettingsController> {
                         children: [
                           CircleAvatar(
                             radius: 50,
-                            backgroundColor: Colors.green[400],
+                            backgroundColor: softGreen,
                             backgroundImage: file != null
                                 ? FileImage(file)
-                                : (url != null ? NetworkImage(url) : null) as ImageProvider<Object>?,
+                                : (url != null ? NetworkImage(url) : null)
+                                    as ImageProvider<Object>?,
                             child: (file == null && url == null)
-                                ? const Icon(Icons.person, size: 50, color: Colors.white)
+                                ? const Icon(Icons.person,
+                                    size: 50, color: Colors.white)
                                 : null,
                           ),
                           Positioned(
@@ -67,8 +76,9 @@ class SettingsView extends GetView<SettingsController> {
                               onTap: ctrl.pickImage,
                               child: CircleAvatar(
                                 radius: 16,
-                                backgroundColor: Colors.green,
-                                child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                                backgroundColor: softGreen,
+                                child: const Icon(Icons.edit,
+                                    size: 16, color: Colors.white),
                               ),
                             ),
                           ),
@@ -79,17 +89,21 @@ class SettingsView extends GetView<SettingsController> {
                   const SizedBox(height: 20),
 
                   if (ctrl.isLoading.value)
-                    const Center(child: CircularProgressIndicator(color: Colors.white))
+                    const Center(
+                        child: CircularProgressIndicator(color: Colors.white))
                   else ...[
-                    _buildTextField(ctrl.firstNameCtrl, Icons.person, "First Name"),
+                    _buildTextField(
+                        ctrl.firstNameCtrl, Icons.person, "First Name"),
                     const SizedBox(height: 12),
-                    _buildTextField(ctrl.lastNameCtrl, Icons.person, "Last Name"),
+                    _buildTextField(
+                        ctrl.lastNameCtrl, Icons.person, "Last Name"),
                     const SizedBox(height: 12),
                     _buildTextField(ctrl.emailCtrl, Icons.email, "Email"),
                     const SizedBox(height: 12),
                     _buildTextField(ctrl.phoneCtrl, Icons.phone, "Phone"),
                     const SizedBox(height: 30),
-                    _buildActionButton(label: "Save", onPressed: ctrl.saveProfile),
+                    _buildActionButton(
+                        label: "Save", onPressed: ctrl.saveProfile),
                   ],
                 ],
               );
@@ -100,7 +114,8 @@ class SettingsView extends GetView<SettingsController> {
     );
   }
 
-  Widget _buildTextField(TextEditingController ctrl, IconData icon, String label) {
+  Widget _buildTextField(
+      TextEditingController ctrl, IconData icon, String label) {
     final isDark = Get.isDarkMode;
     return Card(
       color: isDark ? Colors.grey[800] : Colors.white,
@@ -114,8 +129,9 @@ class SettingsView extends GetView<SettingsController> {
           decoration: InputDecoration(
             border: InputBorder.none,
             labelText: label,
-            labelStyle: TextStyle(color: isDark ? Colors.white70 : Colors.black54),
-            prefixIcon: Icon(icon, color: Colors.green),
+            labelStyle:
+                TextStyle(color: isDark ? Colors.white70 : Colors.black54),
+            prefixIcon: Icon(icon, color: softGreen),
           ),
         ),
       ),
@@ -125,16 +141,17 @@ class SettingsView extends GetView<SettingsController> {
   Widget _buildActionButton({
     required String label,
     required Function() onPressed,
-    int colorLevel = 700,
   }) {
     return Obx(() => SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: controller.isLoading.value ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[colorLevel],
+              backgroundColor: softGreen,
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               elevation: 4,
             ),
             child: controller.isLoading.value

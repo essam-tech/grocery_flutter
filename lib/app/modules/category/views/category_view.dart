@@ -18,33 +18,35 @@ class CategoryView extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final softGreen = const Color(0xFF40DF9F); // اللون الأخضر الهادئ
+
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: isDark ? Colors.grey[900] : Colors.grey[100],
       body: Stack(
         children: [
-          // 🔹 خلفية SVG
+          // 🔹 خلفية SVG هادئة
           Positioned(
             top: -120.h,
             left: -50.w,
             child: SvgPicture.asset(
               Constants.container,
               fit: BoxFit.cover,
-              color: theme.canvasColor,
+              color: isDark ? Colors.grey[850] : Colors.white,
               width: context.width * 1.2,
             ),
           ),
 
           // 🔹 المحتوى
           RefreshIndicator(
+            color: softGreen,
             onRefresh: () async => controller.fetchProductsAndCategories(),
             child: ListView(
               padding: EdgeInsets.zero,
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
-                // 🔹 Header مع زر الرجوع
+                // 🔹 Header
                 Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                   child: Row(
                     children: [
                       SizedBox(width: 8.w),
@@ -59,37 +61,31 @@ class CategoryView extends StatelessWidget {
                   ),
                 ),
 
-                // 🔹 شريط البحث
+                // 🔹 شريط البحث مع لمسة خضراء
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: TextField(
                     controller: searchController,
                     decoration: InputDecoration(
                       hintText: 'Search products...',
-                      prefixIcon:
-                          Icon(Icons.search, color: theme.colorScheme.primary),
+                      prefixIcon: Icon(Icons.search, color: softGreen),
                       filled: true,
-                      fillColor: isDark ? Colors.grey[850] : theme.cardColor,
+                      fillColor: isDark ? Colors.grey[850] : Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.r),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16.w, vertical: 0),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 0),
                     ),
                     onChanged: (value) {
                       if (value.isEmpty) {
-                        controller.filterProducts(
-                            controller.selectedCategoryId.value);
+                        controller.filterProducts(controller.selectedCategoryId.value);
                       } else {
                         controller.filteredProducts.assignAll(
                           controller.allProducts.where((p) =>
-                              p.productName
-                                  .toLowerCase()
-                                  .contains(value.toLowerCase()) &&
+                              p.productName.toLowerCase().contains(value.toLowerCase()) &&
                               (controller.selectedCategoryId.value == 'all' ||
-                                  p.categoryName ==
-                                      controller.selectedCategoryId.value)),
+                                  p.categoryName == controller.selectedCategoryId.value)),
                         );
                       }
                     },
@@ -98,8 +94,8 @@ class CategoryView extends StatelessWidget {
 
                 16.verticalSpace,
 
-                // 🔹 أزرار الفئات
-                CategoryButtons(controller: controller, theme: theme),
+                // 🔹 أزرار الفئات مع لمسة خضراء
+                CategoryButtons(controller: controller, softGreen: softGreen),
                 16.verticalSpace,
 
                 // 🔹 شبكة المنتجات
@@ -111,7 +107,7 @@ class CategoryView extends StatelessWidget {
                         child: Text(
                           "No Products Found",
                           style: TextStyle(
-                              color: theme.colorScheme.primary,
+                              color: softGreen,
                               fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -130,22 +126,19 @@ class CategoryView extends StatelessWidget {
                     ),
                     itemCount: controller.filteredProducts.length,
                     itemBuilder: (context, index) {
-                      final ProductModel product =
-                          controller.filteredProducts[index];
+                      final ProductModel product = controller.filteredProducts[index];
 
                       return GestureDetector(
                         onTap: () {
-                          Get.toNamed(Routes.PRODUCT_DETAILS,
-                              arguments: product);
+                          Get.toNamed(Routes.PRODUCT_DETAILS, arguments: product);
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16.r),
                           ),
-                          color: isDark ? Colors.grey[850] : theme.cardColor,
+                          color: isDark ? Colors.grey[850] : Colors.white,
                           elevation: 4,
-                          shadowColor:
-                              theme.colorScheme.primary.withOpacity(0.2),
+                          shadowColor: softGreen.withOpacity(0.2),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -175,8 +168,7 @@ class CategoryView extends StatelessWidget {
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14.sp,
-                                        color:
-                                            theme.textTheme.bodyMedium?.color,
+                                        color: theme.textTheme.bodyMedium?.color,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -185,7 +177,7 @@ class CategoryView extends StatelessWidget {
                                     Text(
                                       "${product.price} ${product.currencySymbol ?? '\$'}",
                                       style: TextStyle(
-                                        color: theme.colorScheme.primary,
+                                        color: softGreen,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -213,9 +205,8 @@ class CategoryView extends StatelessWidget {
 // ---------------- CategoryButtons ----------------
 class CategoryButtons extends StatefulWidget {
   final CategoryController controller;
-  final ThemeData theme;
-  const CategoryButtons(
-      {super.key, required this.controller, required this.theme});
+  final Color softGreen;
+  const CategoryButtons({super.key, required this.controller, required this.softGreen});
 
   @override
   State<CategoryButtons> createState() => _CategoryButtonsState();
@@ -226,6 +217,7 @@ class _CategoryButtonsState extends State<CategoryButtons> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SizedBox(
       height: 50.h,
       child: Obx(() {
@@ -248,15 +240,12 @@ class _CategoryButtonsState extends State<CategoryButtons> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? widget.theme.colorScheme.primary
-                      : widget.theme.cardColor,
+                  color: isSelected ? widget.softGreen : theme.cardColor,
                   borderRadius: BorderRadius.circular(25.r),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: widget.theme.colorScheme.primary
-                                .withOpacity(0.4),
+                            color: widget.softGreen.withOpacity(0.4),
                             blurRadius: 6,
                             offset: const Offset(0, 3),
                           )
@@ -267,9 +256,7 @@ class _CategoryButtonsState extends State<CategoryButtons> {
                   child: Text(
                     category.name,
                     style: TextStyle(
-                      color: isSelected
-                          ? Colors.white
-                          : widget.theme.textTheme.bodyMedium?.color,
+                      color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
                       fontWeight: FontWeight.bold,
                       fontSize: 14.sp,
                     ),

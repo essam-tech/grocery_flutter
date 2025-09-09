@@ -17,6 +17,9 @@ import '../../home/views/home_view.dart';
 class BaseView extends GetView<BaseController> {
   const BaseView({Key? key}) : super(key: key);
 
+  final Color softGreen = const Color(0xFF40DF9F);
+  final Color softGreenLight = const Color(0xFFA8E6CF);
+
   @override
   Widget build(BuildContext context) {
     var theme = context.theme;
@@ -32,7 +35,7 @@ class BaseView extends GetView<BaseController> {
               CategoryView(),
               Center(),
               CalendarView(),
-              ProfileView()
+              ProfileView(),
             ],
           ),
         ),
@@ -50,7 +53,7 @@ class BaseView extends GetView<BaseController> {
               icon: Constants.homeIcon,
             ),
             _mBottomNavItem(
-              label: 'category',
+              label: 'Category',
               icon: Constants.categoryIcon,
             ),
             const BottomNavigationBarItem(
@@ -86,12 +89,12 @@ class BaseView extends GetView<BaseController> {
               ),
               badgeStyle: BadgeStyle(
                 elevation: 2,
-                badgeColor: theme.colorScheme.secondary,
+                badgeColor: softGreen,
                 borderSide: const BorderSide(color: Colors.white, width: 1),
               ),
               child: CircleAvatar(
                 radius: 22.r,
-                backgroundColor: theme.primaryColor,
+                backgroundColor: softGreen,
                 child: SvgPicture.asset(
                   Constants.cartIcon,
                   fit: BoxFit.none,
@@ -107,9 +110,8 @@ class BaseView extends GetView<BaseController> {
   _mBottomNavItem({required String label, required String icon}) {
     return BottomNavigationBarItem(
       label: label,
-      icon: SvgPicture.asset(icon, color: Get.theme.iconTheme.color),
-      activeIcon:
-          SvgPicture.asset(icon, color: Get.theme.appBarTheme.iconTheme?.color),
+      icon: SvgPicture.asset(icon, color: Get.isDarkMode ? Colors.white70 : Colors.black54),
+      activeIcon: SvgPicture.asset(icon, color: softGreen),
     );
   }
 }

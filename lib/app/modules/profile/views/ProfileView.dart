@@ -9,17 +9,21 @@ class ProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final softGreen = const Color(0xFF40DF9F); // اللون الأخضر الهادئ
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: isDark ? Colors.grey[900] : Colors.grey[100],
       body: Stack(
         children: [
-          // 🌿 خلفية gradient خضراء ثابتة
+          // 🌿 خلفية gradient خضراء هادئة لمسات فقط
           Container(
-            height: 250,
+            height: 220,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.green.shade700, Colors.greenAccent.shade400],
+                colors: [
+                  softGreen.withOpacity(0.6),
+                  softGreen.withOpacity(0.3)
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -29,7 +33,7 @@ class ProfileView extends GetView<ProfileController> {
             ),
           ),
 
-          // المحتوى بدون SafeArea، مع Padding أعلى يعتمد على status bar
+          // المحتوى
           Padding(
             padding: EdgeInsets.only(
               left: 20,
@@ -46,7 +50,7 @@ class ProfileView extends GetView<ProfileController> {
                   backgroundColor: isDark ? Colors.grey[800] : Colors.white,
                   child: CircleAvatar(
                     radius: 50,
-                    backgroundColor: Colors.green[400],
+                    backgroundColor: softGreen.withOpacity(0.6),
                     child: const Icon(
                       Icons.person,
                       size: 50,
@@ -57,13 +61,13 @@ class ProfileView extends GetView<ProfileController> {
 
                 const SizedBox(height: 15),
 
-                // العنوان (فارغ أو يمكن وضع اسم المستخدم)
+                // العنوان (اسم المستخدم)
                 Text(
-                  "",
+                  "Guest User",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : Colors.black87,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -72,36 +76,38 @@ class ProfileView extends GetView<ProfileController> {
 
                 // قائمة الخيارات
                 Expanded(
-                  child: Container(
+                  child: ListView(
                     padding: const EdgeInsets.only(top: 20),
-                    child: ListView(
-                      children: [
-                        _buildProfileCard(
-                          icon: Icons.person,
-                          title: "login",
-                          onTap: () => controller.openProfileDetails(),
-                          theme: theme,
-                        ),
-                        _buildProfileCard(
-                          icon: Icons.settings,
-                          title: "Settings",
-                          onTap: () => controller.openSettings(),
-                          theme: theme,
-                        ),
-                        _buildProfileCard(
-                          icon: Icons.notifications,
-                          title: "Notifications",
-                          onTap: () => controller.openNotifications(),
-                          theme: theme,
-                        ),
-                        _buildProfileCard(
-                          icon: Icons.info,
-                          title: "About",
-                          onTap: () => controller.openAbout(),
-                          theme: theme,
-                        ),
-                      ],
-                    ),
+                    children: [
+                      _buildProfileCard(
+                        icon: Icons.person,
+                        title: "login",
+                        onTap: () => controller.openProfileDetails(),
+                        softGreen: softGreen,
+                        theme: theme,
+                      ),
+                      _buildProfileCard(
+                        icon: Icons.settings,
+                        title: "Settings",
+                        onTap: () => controller.openSettings(),
+                        softGreen: softGreen,
+                        theme: theme,
+                      ),
+                      _buildProfileCard(
+                        icon: Icons.notifications,
+                        title: "Notifications",
+                        onTap: () => controller.openNotifications(),
+                        softGreen: softGreen,
+                        theme: theme,
+                      ),
+                      _buildProfileCard(
+                        icon: Icons.info,
+                        title: "About",
+                        onTap: () => controller.openAbout(),
+                        softGreen: softGreen,
+                        theme: theme,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -117,18 +123,20 @@ class ProfileView extends GetView<ProfileController> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    required Color softGreen,
     required ThemeData theme,
   }) {
     final isDark = theme.brightness == Brightness.dark;
-    final cardColor = isDark ? Colors.grey[900] : Colors.white;
-    final iconBgColor = isDark ? Colors.green.shade900 : Colors.green[50];
-    final textColor = Colors.green;
+    final cardColor = isDark ? Colors.grey[850] : Colors.white;
+    final iconBgColor =
+        isDark ? softGreen.withOpacity(0.2) : softGreen.withOpacity(0.2);
+    final textColor = softGreen;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 6,
-      shadowColor: Colors.greenAccent.withOpacity(0.5),
+      shadowColor: softGreen.withOpacity(0.3),
       color: cardColor,
       child: ListTile(
         leading: CircleAvatar(
