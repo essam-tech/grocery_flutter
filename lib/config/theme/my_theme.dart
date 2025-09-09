@@ -7,7 +7,50 @@ import 'light_theme_colors.dart';
 import 'my_styles.dart';
 
 class MyTheme {
-  static getThemeData({required bool isLight}){
+  static ThemeData getThemeData({required bool isLight}) {
+    final brightness = isLight ? Brightness.light : Brightness.dark;
+
+    // تعريف الـ ColorScheme بشكل صحيح مع الـ brightness
+    final colorScheme = ColorScheme.fromSwatch(
+      primarySwatch: Colors.green, // ممكن تغير حسب اللون الرئيسي
+      brightness: brightness,
+    ).copyWith(
+      secondary: isLight ? LightThemeColors.accentColor : DarkThemeColors.accentColor,
+      background: isLight ? LightThemeColors.backgroundColor : DarkThemeColors.backgroundColor,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: brightness,
+      primaryColor: isLight ? LightThemeColors.primaryColor : DarkThemeColors.primaryColor,
+      primaryColorLight: isLight ? LightThemeColors.primaryColorLight : DarkThemeColors.primaryColorLight,
+      primaryColorDark: isLight ? LightThemeColors.primaryColorDark : DarkThemeColors.primaryColorDark,
+      canvasColor: isLight ? LightThemeColors.canvasColor : DarkThemeColors.canvasColor,
+      cardColor: isLight ? LightThemeColors.cardColor : DarkThemeColors.cardColor,
+      hintColor: isLight ? LightThemeColors.hintTextColor : DarkThemeColors.hintTextColor,
+      dividerColor: isLight ? LightThemeColors.dividerColor : DarkThemeColors.dividerColor,
+      scaffoldBackgroundColor: isLight ? LightThemeColors.scaffoldBackgroundColor : DarkThemeColors.scaffoldBackgroundColor,
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: isLight ? LightThemeColors.primaryColor : DarkThemeColors.primaryColor,
+      ),
+      appBarTheme: MyStyles.getAppBarTheme(isLightTheme: isLight),
+      elevatedButtonTheme: MyStyles.getElevatedButtonTheme(isLightTheme: isLight),
+      textTheme: MyStyles.getTextTheme(isLightTheme: isLight),
+      chipTheme: MyStyles.getChipTheme(isLightTheme: isLight),
+      iconTheme: MyStyles.getIconTheme(isLightTheme: isLight),
+      colorScheme: colorScheme,
+    );
+  }
+
+  static changeTheme() {
+    bool isLightTheme = MySharedPref.getThemeIsLight();
+    MySharedPref.setThemeIsLight(!isLightTheme);
+    Get.changeThemeMode(!isLightTheme ? ThemeMode.light : ThemeMode.dark);
+  }
+
+  bool get getThemeIsLight => MySharedPref.getThemeIsLight();
+}
+  getThemeData({required bool isLight}){
     return ThemeData(
         useMaterial3: true,
         // main color (app bar,tabs..etc)
@@ -50,7 +93,7 @@ class MyTheme {
 
   /// update app theme and save theme type to shared pref
   /// (so when the app is killed and up again theme will remain the same)
-  static changeTheme() {
+  changeTheme() {
     // *) check if the current theme is light (default is light)
     bool isLightTheme = MySharedPref.getThemeIsLight();
     // *) store the new theme mode on get storage
@@ -61,4 +104,3 @@ class MyTheme {
 
   /// check if the theme is light or dark
   bool get getThemeIsLight => MySharedPref.getThemeIsLight();
-}
