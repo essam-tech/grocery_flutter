@@ -6,10 +6,15 @@ import 'app/data/local/my_shared_pref.dart';
 import 'app/routes/app_pages.dart';
 import 'config/theme/my_theme.dart';
 import 'config/translations/localization_service.dart';
+import 'app/modules/cart/controllers/cart_controller.dart'; // تأكد المسار صح
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await MySharedPref.init();
+
+  // ✅ تسجيل CartController بحيث يكون موجود طوال فترة التطبيق
+  Get.put(CartController(), permanent: true);
+
   runApp(const MyApp());
 }
 

@@ -1,7 +1,5 @@
-// ignore_for_file: deprecated_member_use
-
+import 'dart:ui';
 import 'package:flutter/material.dart' hide Badge;
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:badges/badges.dart';
 import 'package:get/get.dart';
@@ -17,15 +15,14 @@ import '../../home/views/home_view.dart';
 class BaseView extends GetView<BaseController> {
   const BaseView({Key? key}) : super(key: key);
 
-  final Color softGreen = const Color(0xFF40DF9F);
-  final Color softGreenLight = const Color(0xFFA8E6CF);
+  final Color softGreen = const Color(0xFF40DF9F); // اللون المختار
 
   @override
   Widget build(BuildContext context) {
-    var theme = context.theme;
     return GetBuilder<BaseController>(
       builder: (_) => Scaffold(
         resizeToAvoidBottomInset: false,
+        extendBody: true,
         body: SafeArea(
           bottom: false,
           child: IndexedStack(
@@ -39,65 +36,67 @@ class BaseView extends GetView<BaseController> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: controller.currentIndex,
-          type: BottomNavigationBarType.fixed,
-          elevation: 0.0,
-          backgroundColor: Colors.transparent,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          selectedFontSize: 0.0,
-          items: [
-            _mBottomNavItem(
-              label: 'Home',
-              icon: Constants.homeIcon,
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: BottomNavigationBar(
+              currentIndex: controller.currentIndex,
+              type: BottomNavigationBarType.fixed,
+              elevation: 8,
+              backgroundColor: Colors.white.withOpacity(0.25),
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              items: [
+                _mBottomNavItem(label: 'Home', icon: Constants.homeIcon, index: 0),
+                _mBottomNavItem(label: 'Category', icon: Constants.categoryIcon, index: 1),
+                const BottomNavigationBarItem(label: '', icon: SizedBox.shrink()),
+                _mBottomNavItem(label: 'Calendar', icon: Constants.calendarIcon, index: 3),
+                _mBottomNavItem(label: 'Profile', icon: Constants.userIcon, index: 4),
+              ],
+              onTap: controller.changeScreen,
             ),
-            _mBottomNavItem(
-              label: 'Category',
-              icon: Constants.categoryIcon,
-            ),
-            const BottomNavigationBarItem(
-              label: '',
-              icon: Center(),
-            ),
-            _mBottomNavItem(
-              label: 'Calendar',
-              icon: Constants.calendarIcon,
-            ),
-            _mBottomNavItem(
-              label: 'Profile',
-              icon: Constants.userIcon,
-            ),
-          ],
-          onTap: controller.changeScreen,
+          ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: FloatingActionButton(
-          elevation: 0.0,
-          backgroundColor: Colors.transparent,
-          onPressed: () => Get.toNamed(Routes.CART),
-          child: GetBuilder<BaseController>(
-            id: 'CartBadge',
-            builder: (_) => Badge(
-              position: BadgePosition.bottomEnd(bottom: -16, end: 13),
-              badgeContent: Text(
-                controller.cartItemsCount.toString(),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: softGreen.withOpacity(0.6),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            elevation: 4,
+            backgroundColor: Colors.white.withOpacity(0.25),
+            onPressed: () => Get.toNamed(Routes.CART),
+            child: GetBuilder<BaseController>(
+              id: 'CartBadge',
+              builder: (_) => Badge(
+                position: BadgePosition.bottomEnd(bottom: -12, end: -6),
+                badgeContent: Text(
+                  controller.cartItemsCount.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-              badgeStyle: BadgeStyle(
-                elevation: 2,
-                badgeColor: softGreen,
-                borderSide: const BorderSide(color: Colors.white, width: 1),
-              ),
-              child: CircleAvatar(
-                radius: 22.r,
-                backgroundColor: softGreen,
+                badgeStyle: const BadgeStyle(
+                  elevation: 2,
+                  badgeColor: Colors.redAccent,
+                ),
                 child: SvgPicture.asset(
                   Constants.cartIcon,
-                  fit: BoxFit.none,
+                  color: Colors.white.withOpacity(0.95),
+                  height: 28,
                 ),
               ),
             ),
@@ -107,11 +106,30 @@ class BaseView extends GetView<BaseController> {
     );
   }
 
-  _mBottomNavItem({required String label, required String icon}) {
+  BottomNavigationBarItem _mBottomNavItem({
+    required String label,
+    required String icon,
+    required int index,
+  }) {
+    bool isSelected = controller.currentIndex == index;
     return BottomNavigationBarItem(
       label: label,
-      icon: SvgPicture.asset(icon, color: Get.isDarkMode ? Colors.white70 : Colors.black54),
-      activeIcon: SvgPicture.asset(icon, color: softGreen),
+      icon: Transform.scale(
+        scale: isSelected ? 1.2 : 1.0,
+        child: SvgPicture.asset(
+          icon,
+          color: isSelected ? softGreen : Colors.grey[700], // واضح عند عدم الاختيار
+          height: 26,
+        ),
+      ),
+      activeIcon: Transform.scale(
+        scale: 1.2,
+        child: SvgPicture.asset(
+          icon,
+          color: softGreen,
+          height: 28,
+        ),
+      ),
     );
   }
 }

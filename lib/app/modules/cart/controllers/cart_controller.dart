@@ -1,80 +1,73 @@
 import 'package:get/get.dart';
-import '../../../data/models/product_model.dart';
-import '../../../data/api/api_service.dart';
-import '../../base/controllers/base_controller.dart';
-import '../../../components/custom_snackbar.dart';
+import '../../../data/models/cart_model.dart';
 
 class CartController extends GetxController {
+  // للوصول السهل من أي مكان
+  static CartController get to => Get.find();
 
-  // قائمة المنتجات الموجودة في الكارت
-  List<ProductModel> products = [];
+  // قائمة منتجات السلة
+  var products = <CartDetail>[].obs;
 
   @override
   void onInit() {
-    getCartProducts();
     super.onInit();
+    print("ℹ️ CartController initialized");
   }
 
-  /// جلب منتجات الكارت من الـ API
-  Future<void> getCartProducts() async {
-    try {
-      var allProducts = await ApiService.getHomePageProducts();
-      // فلتر المنتجات حسب الكمية المطلوبة من قبل الزبون
-      products = allProducts.where((p) => p.orderQuantity > 0).toList();
-      update();
-    } catch (e) {
-      print("Error fetching cart products: $e");
+  /// إضافة منتج جديد للكارت أو زيادة الكمية لو موجود
+  void addProduct(CartDetail item) {
+    final index = products.indexWhere((e) => e.productId == item.productId);
+    if (index != -1) {
+      products[index].quantity += item.quantity;
+      products[index].total = products[index].unitPrice * products[index].quantity;
+      print("ℹ️ Increased quantity for product: ${item.productName}, new qty: ${products[index].quantity}");
+    } else {
+      products.add(item);
+      print("ℹ️ Added new product to cart: ${item.productName}");
+    }
+    products.refresh();
+  }
+
+  /// زيادة كمية منتج موجود في السلة
+  void increaseQuantity(CartDetail item) {
+    final index = products.indexWhere((e) => e.productId == item.productId);
+    if (index != -1) {
+      products[index].quantity++;
+      products[index].total = products[index].unitPrice * products[index].quantity;
+      products.refresh();
+      print("ℹ️ Increased quantity: ${products[index].productName} = ${products[index].quantity}");
     }
   }
 
-  /// عند الضغط على "Purchase Now"
-  Future<void> onPurchaseNowPressed() async {
-    await clearCart();
-    Get.back();
-    CustomSnackBar.showCustomSnackBar(
-      title: 'Purchased',
-      message: 'Order placed successfully'
-    );
-  }
-
-  /// مسح الكارت وإعادة تعيين الكميات
-  Future<void> clearCart() async {
-    try {
-      var allProducts = await ApiService.getHomePageProducts();
-      for (var p in allProducts) {
-        p.orderQuantity = 0;
-      }
-      // تحديث عداد الكارت في BaseController
-      if (Get.isRegistered<BaseController>()) {
-        Get.find<BaseController>().getCartItemsCount();
-      }
-      // إعادة تحميل الكارت
-      products = [];
-      update();
-    } catch (e) {
-      print("Error clearing cart: $e");
+  /// تقليل كمية منتج موجود في السلة
+  void decreaseQuantity(CartDetail item) {
+    final index = products.indexWhere((e) => e.productId == item.productId);
+    if (index != -1 && products[index].quantity > 1) {
+      products[index].quantity--;
+      products[index].total = products[index].unitPrice * products[index].quantity;
+      products.refresh();
+      print("ℹ️ Decreased quantity: ${products[index].productName} = ${products[index].quantity}");
+    } else if (index != -1 && products[index].quantity == 1) {
+      removeItem(products[index]);
     }
   }
 
-  /// زيادة كمية منتج معين
-  void increaseQuantity(ProductModel product) {
-    product.orderQuantity++;
-    updateCart();
+  /// حذف منتج من السلة
+  void removeItem(CartDetail item) {
+    products.removeWhere((e) => e.productId == item.productId);
+    products.refresh();
+    print("❌ Removed product from cart: ${item.productName}");
   }
 
-  /// تقليل كمية منتج معين
-  void decreaseQuantity(ProductModel product) {
-    if (product.orderQuantity > 0) {
-      product.orderQuantity--;
-      updateCart();
-    }
+  /// مسح كل السلة
+  void clearCart() {
+    products.clear();
+    print("ℹ️ Cart cleared");
   }
 
-  /// تحديث الكارت وعداد الكارت
-  void updateCart() {
-    if (Get.isRegistered<BaseController>()) {
-      Get.find<BaseController>().getCartItemsCount();
-    }
-    getCartProducts();
-  }
+  /// إجمالي عدد المنتجات في السلة
+  int get totalItems => products.fold(0, (sum, item) => sum + item.quantity);
+
+  /// إجمالي سعر السلة
+  double get totalPrice => products.fold(0, (sum, item) => sum + item.total);
 }

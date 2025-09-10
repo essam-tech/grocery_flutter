@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/local/my_shared_pref.dart';
 import '../../../data/api/api_service.dart';
+import '../../../data/models/ProfileModel.dart';
 
 class LoginController extends GetxController {
   // 📝 Controllers
@@ -64,8 +65,13 @@ class LoginController extends GetxController {
     isLoading.value = true;
     try {
       authToken = await ApiService.verifyCode(email, code);
-      step.value = 2;
-      print("✅ Step 1: التوكن مستلم: $authToken, الانتقال للخطوة 2");
+      if (authToken != null) {
+        await MySharedPref.setToken(authToken!);
+        step.value = 2;
+        print("✅ Step 1: التوكن مستلم وحفظ في SharedPreferences: $authToken");
+      } else {
+        print("❌ Step 1: التوكن غير موجود بعد التحقق");
+      }
     } catch (e) {
       print("❌ Step 1 Error: $e");
     } finally {
@@ -107,8 +113,8 @@ class LoginController extends GetxController {
       );
 
       if (token.isNotEmpty) {
-        // حفظ التوكن في SharedPreferences
         await MySharedPref.setToken(token);
+        authToken = token;
         print("✅ Step 2: التسجيل مكتمل بنجاح، التوكن تم حفظه: $token");
         return true;
       } else {
@@ -120,6 +126,21 @@ class LoginController extends GetxController {
       return false;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// جلب البروفايل باستخدام آخر توكن مخزن
+  Future<profileModel?> getProfile() async {
+    try {
+      final token = authToken ?? await MySharedPref.getToken();
+      if (token == null) {
+        print("⚠️ لا يوجد توكن مخزن");
+        return null;
+      }
+      return await ApiService.getProfile(token);
+    } catch (e) {
+      print("❌ خطأ أثناء جلب البروفايل: $e");
+      return null;
     }
   }
 

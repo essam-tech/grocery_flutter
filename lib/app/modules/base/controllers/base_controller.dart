@@ -15,8 +15,17 @@ class BaseController extends GetxController {
 
   @override
   void onInit() {
-    getAllProducts();
     super.onInit();
+    getAllProducts();
+
+    // ربط العدادات مع CartController
+    if (Get.isRegistered<CartController>()) {
+      final cartController = Get.find<CartController>();
+      // أي تغير في منتجات الكارت يحدث تحديث للعداد
+      ever(cartController.products, (_) {
+        getCartItemsCountFromCart(cartController);
+      });
+    }
   }
 
   /// تغيير الشاشة المحددة
@@ -25,7 +34,7 @@ class BaseController extends GetxController {
     update();
   }
 
-  /// جلب كل المنتجات من الـ API وتحديث عداد الكارت
+  /// جلب كل المنتجات من الـ API
   Future<void> getAllProducts() async {
     try {
       allProducts = await ApiService.getHomePageProducts();
@@ -37,23 +46,33 @@ class BaseController extends GetxController {
 
   /// حساب عدد المنتجات الموجودة في الكارت بشكل آمن
   void getCartItemsCount() {
-    cartItemsCount = allProducts.fold<int>(
-      0,
-      (previousValue, element) => previousValue + (element.orderQuantity),
-    );
+    if (Get.isRegistered<CartController>()) {
+      final cartController = Get.find<CartController>();
+      cartItemsCount = cartController.totalItems;
+    } else {
+      cartItemsCount = allProducts.fold<int>(
+        0,
+        (previousValue, element) => previousValue + (element.orderQuantity),
+      );
+    }
+    update(['CartBadge']);
+  }
+
+  /// تحديث العد من CartController مباشرة
+  void getCartItemsCountFromCart(CartController cartController) {
+    cartItemsCount = cartController.totalItems;
     update(['CartBadge']);
   }
 
   /// زيادة كمية المنتج بشكل آمن
   void onIncreasePressed(int productId) {
-    // نتحقق إذا المنتج موجود قبل استخدام firstWhere
     if (allProducts.any((p) => p.productId == productId)) {
       final product = allProducts.firstWhere((p) => p.productId == productId);
-      product.orderQuantity = (product.orderQuantity) + 1;
+      product.orderQuantity += 1;
       getCartItemsCount();
 
       if (Get.isRegistered<CartController>()) {
-        Get.find<CartController>().getCartProducts();
+        Get.find<CartController>().products.refresh();
       }
       update(['ProductQuantity']);
     } else {
@@ -65,12 +84,12 @@ class BaseController extends GetxController {
   void onDecreasePressed(int productId) {
     if (allProducts.any((p) => p.productId == productId)) {
       final product = allProducts.firstWhere((p) => p.productId == productId);
-      if ((product.orderQuantity) > 0) {
-        product.orderQuantity = product.orderQuantity - 1;
+      if (product.orderQuantity > 0) {
+        product.orderQuantity -= 1;
         getCartItemsCount();
 
         if (Get.isRegistered<CartController>()) {
-          Get.find<CartController>().getCartProducts();
+          Get.find<CartController>().products.refresh();
         }
         update(['ProductQuantity']);
       }

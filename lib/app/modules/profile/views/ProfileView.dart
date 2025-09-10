@@ -44,33 +44,53 @@ class ProfileView extends GetView<ProfileController> {
               children: [
                 const SizedBox(height: 30),
 
-                // صورة البروفايل
-                CircleAvatar(
-                  radius: 55,
-                  backgroundColor: isDark ? Colors.grey[800] : Colors.white,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: softGreen.withOpacity(0.6),
-                    child: const Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.white,
+                // صورة البروفايل واسم المستخدم
+                Obx(() {
+                  final profile = controller.profile.value;
+
+                  final imageUrl = profile?.avatarUrl ?? '';
+                  final displayName = profile != null
+                      ? "${profile.firstName} ${profile.lastName}"
+                      : "Guest User";
+
+                  return CircleAvatar(
+                    radius: 55,
+                    backgroundColor: isDark ? Colors.grey[800] : Colors.white,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: softGreen.withOpacity(0.6),
+                      backgroundImage: imageUrl.isNotEmpty
+                          ? NetworkImage(imageUrl)
+                          : null,
+                      child: imageUrl.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Colors.white,
+                            )
+                          : null,
                     ),
-                  ),
-                ),
+                  );
+                }),
 
                 const SizedBox(height: 15),
 
-                // العنوان (اسم المستخدم)
-                Text(
-                  "Guest User",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                    letterSpacing: 0.5,
-                  ),
-                ),
+                // الاسم
+                Obx(() {
+                  final profile = controller.profile.value;
+                  final displayName = profile != null
+                      ? "${profile.firstName} ${profile.lastName}"
+                      : "Guest User";
+                  return Text(
+                    displayName,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black87,
+                      letterSpacing: 0.5,
+                    ),
+                  );
+                }),
 
                 const SizedBox(height: 25),
 
@@ -88,7 +108,7 @@ class ProfileView extends GetView<ProfileController> {
                       ),
                       _buildProfileCard(
                         icon: Icons.settings,
-                        title: "Settings",
+                        title: "profile settings",
                         onTap: () => controller.openSettings(),
                         softGreen: softGreen,
                         theme: theme,
