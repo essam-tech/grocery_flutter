@@ -8,10 +8,20 @@ class CartController extends GetxController {
   // قائمة منتجات السلة
   var products = <CartDetail>[].obs;
 
+  // 🔹 المبلغ الإجمالي كسطر Rx
+  var totalAmount = 0.0.obs;
+
   @override
   void onInit() {
     super.onInit();
     print("ℹ️ CartController initialized");
+
+    // تحديث المجموع تلقائي عند أي تغيير في المنتجات
+    ever(products, (_) => _updateTotal());
+  }
+
+  void _updateTotal() {
+    totalAmount.value = products.fold(0, (sum, item) => sum + item.total);
   }
 
   /// إضافة منتج جديد للكارت أو زيادة الكمية لو موجود
@@ -68,6 +78,6 @@ class CartController extends GetxController {
   /// إجمالي عدد المنتجات في السلة
   int get totalItems => products.fold(0, (sum, item) => sum + item.quantity);
 
-  /// إجمالي سعر السلة
-  double get totalPrice => products.fold(0, (sum, item) => sum + item.total);
+  /// إجمالي سعر السلة (للاستخدام المباشر)
+  double get totalPrice => totalAmount.value;
 }

@@ -49,9 +49,6 @@ class ProfileView extends GetView<ProfileController> {
                   final profile = controller.profile.value;
 
                   final imageUrl = profile?.avatarUrl ?? '';
-                  final displayName = profile != null
-                      ? "${profile.firstName} ${profile.lastName}"
-                      : "Guest User";
 
                   return CircleAvatar(
                     radius: 55,

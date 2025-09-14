@@ -34,13 +34,27 @@ class CartView extends GetView<CartController> {
               if (controller.products.isNotEmpty)
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: CustomButton(
-                    text: "Purchase Now",
-                    onPressed: () {
-                      controller.clearCart();
-                      Get.back();
-                    },
-                  ).animate().fade().slideY(duration: 300.ms, begin: 1),
+                  child: Column(
+                    children: [
+                      // 🔹 عرض المبلغ الإجمالي
+                      Obx(() => Text(
+                            "Total: \$${controller.totalAmount.value.toStringAsFixed(2)}",
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ).animate().fade().slideY(duration: 300.ms, begin: 1)),
+                      8.verticalSpace,
+                      CustomButton(
+                        text: "Purchase Now",
+                        onPressed: () {
+                          controller.clearCart();
+                          Get.back();
+                        },
+                      ).animate().fade().slideY(duration: 300.ms, begin: 1),
+                    ],
+                  ),
                 ),
               20.verticalSpace,
             ],

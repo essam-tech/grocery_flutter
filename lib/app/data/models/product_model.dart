@@ -62,9 +62,30 @@ class ProductModel {
       productName: json['productName'] ?? '',
       description: json['description'],
       storeId: json['storeId'],
-      price: (json['price'] != null) ? (json['price'] as num).toDouble() : 0.0,
-      productQuantity:
-          (json['productQuantity'] != null) ? (json['productQuantity'] as num).toDouble() : 0.0,
+
+      // 👇 دعم تعدد أسماء السعر
+      price: (json['price'] ??
+              json['productPrice'] ??
+              json['salePrice']) !=
+              null
+          ? (json['price'] ??
+                  json['productPrice'] ??
+                  json['salePrice'] as num)
+              .toDouble()
+          : 0.0,
+
+      // 👇 دعم تعدد أسماء السعر بعد الخصم
+      discountedPrice: (json['discountedPrice'] ??
+                  json['variantDiscountPrice']) !=
+              null
+          ? (json['discountedPrice'] ??
+                  json['variantDiscountPrice'] as num)
+              .toDouble()
+          : null,
+
+      productQuantity: (json['productQuantity'] != null)
+          ? (json['productQuantity'] as num).toDouble()
+          : 0.0,
       categoryName: json['categoryName'],
       brandName: json['brandName'],
       productTypeName: json['productTypeName'],
@@ -75,10 +96,9 @@ class ProductModel {
       currencyCode: json['currencyCode'],
       currencySymbol: json['currencySymbol'],
       productAdvancedInfoId: json['productAdvancedInfoId'],
-      discountPercent:
-          (json['discountPercent'] != null) ? (json['discountPercent'] as num).toDouble() : 0.0,
-      discountedPrice:
-          (json['discountedPrice'] != null) ? (json['discountedPrice'] as num).toDouble() : 0.0,
+      discountPercent: (json['discountPercent'] != null)
+          ? (json['discountPercent'] as num).toDouble()
+          : 0.0,
       subtitle: json['subtitle'],
       promoTitle: json['promoTitle'],
       hasProductVariants: json['hasProductVariants'],
@@ -89,7 +109,8 @@ class ProductModel {
           : [],
       variants: json['variantDetail'] != null
           ? List<ProductVariant>.from(
-              (json['variantDetail'] as List).map((x) => ProductVariant.fromJson(x)))
+              (json['variantDetail'] as List)
+                  .map((x) => ProductVariant.fromJson(x)))
           : [],
     );
   }
@@ -182,13 +203,15 @@ class ProductVariant {
         productId: json['productId'],
         productName: json['productName'],
         sku: json['sku'],
-        variantSalePrice:
-            (json['variantSalePrice'] != null) ? (json['variantSalePrice'] as num).toDouble() : null,
+        variantSalePrice: (json['variantSalePrice'] != null)
+            ? (json['variantSalePrice'] as num).toDouble()
+            : null,
         variantDiscountPrice: (json['variantDiscountPrice'] != null)
             ? (json['variantDiscountPrice'] as num).toDouble()
             : null,
-        varianQuantityt:
-            (json['varianQuantityt'] != null) ? (json['varianQuantityt'] as num).toDouble() : null,
+        varianQuantityt: (json['varianQuantityt'] != null)
+            ? (json['varianQuantityt'] as num).toDouble()
+            : null,
         isDefault: json['isDefault'],
       );
 

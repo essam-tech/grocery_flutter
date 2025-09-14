@@ -55,4 +55,23 @@ class CategoryController extends GetxController {
       );
     }
   }
+
+  /// 🔍 دالة البحث
+  void searchProducts(String query) {
+    query = query.toLowerCase();
+
+    if (query.isEmpty) {
+      // لو البحث فاضي، عرض حسب الفئة المحددة حاليًا
+      filterProducts(selectedCategoryId.value);
+    } else {
+      filteredProducts.assignAll(
+        allProducts.where((p) {
+          final matchesCategory = selectedCategoryId.value == 'all' ||
+              p.categoryName == selectedCategoryId.value;
+          final matchesQuery = p.productName.toLowerCase().contains(query);
+          return matchesCategory && matchesQuery;
+        }).toList(),
+      );
+    }
+  }
 }

@@ -36,67 +36,72 @@ class BaseView extends GetView<BaseController> {
             ],
           ),
         ),
-        bottomNavigationBar: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: BottomNavigationBar(
-              currentIndex: controller.currentIndex,
-              type: BottomNavigationBarType.fixed,
-              elevation: 8,
-              backgroundColor: Colors.white.withOpacity(0.25),
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              items: [
-                _mBottomNavItem(label: 'Home', icon: Constants.homeIcon, index: 0),
-                _mBottomNavItem(label: 'Category', icon: Constants.categoryIcon, index: 1),
-                const BottomNavigationBarItem(label: '', icon: SizedBox.shrink()),
-                _mBottomNavItem(label: 'Calendar', icon: Constants.calendarIcon, index: 3),
-                _mBottomNavItem(label: 'Profile', icon: Constants.userIcon, index: 4),
-              ],
-              onTap: controller.changeScreen,
+        bottomNavigationBar: SizedBox(
+          height: 60, // صغر ارتفاع البار
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: BottomNavigationBar(
+                currentIndex: controller.currentIndex,
+                type: BottomNavigationBarType.fixed,
+                elevation: 6,
+                backgroundColor: Colors.white.withOpacity(0.2),
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+                items: [
+                  _mBottomNavItem(label: 'Home', icon: Constants.homeIcon, index: 0),
+                  _mBottomNavItem(label: 'Category', icon: Constants.categoryIcon, index: 1),
+                  const BottomNavigationBarItem(label: '', icon: SizedBox.shrink()),
+                  _mBottomNavItem(label: 'Calendar', icon: Constants.calendarIcon, index: 3),
+                  _mBottomNavItem(label: 'Profile', icon: Constants.userIcon, index: 4),
+                ],
+                onTap: controller.changeScreen,
+              ),
             ),
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Container(
+          width: 56,
+          height: 56,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: softGreen.withOpacity(0.6),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
+                color: softGreen.withOpacity(0.5),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: FloatingActionButton(
-            elevation: 4,
-            backgroundColor: Colors.white.withOpacity(0.25),
+            elevation: 2,
+            backgroundColor: Colors.white.withOpacity(0.2),
             onPressed: () => Get.toNamed(Routes.CART),
             child: GetBuilder<BaseController>(
               id: 'CartBadge',
               builder: (_) => Badge(
-                position: BadgePosition.bottomEnd(bottom: -12, end: -6),
+                position: BadgePosition.bottomEnd(bottom: -10, end: -4),
                 badgeContent: Text(
                   controller.cartItemsCount.toString(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
                 badgeStyle: const BadgeStyle(
-                  elevation: 2,
+                  elevation: 1,
                   badgeColor: Colors.redAccent,
                 ),
                 child: SvgPicture.asset(
                   Constants.cartIcon,
                   color: Colors.white.withOpacity(0.95),
-                  height: 28,
+                  height: 24,
                 ),
               ),
             ),
@@ -115,19 +120,19 @@ class BaseView extends GetView<BaseController> {
     return BottomNavigationBarItem(
       label: label,
       icon: Transform.scale(
-        scale: isSelected ? 1.2 : 1.0,
+        scale: isSelected ? 1.15 : 1.0,
         child: SvgPicture.asset(
           icon,
-          color: isSelected ? softGreen : Colors.grey[700], // واضح عند عدم الاختيار
-          height: 26,
+          color: isSelected ? softGreen : Colors.grey[700],
+          height: 22,
         ),
       ),
       activeIcon: Transform.scale(
-        scale: 1.2,
+        scale: 1.15,
         child: SvgPicture.asset(
           icon,
           color: softGreen,
-          height: 28,
+          height: 24,
         ),
       ),
     );
