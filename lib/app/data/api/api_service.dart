@@ -327,4 +327,91 @@ class ApiService {
       throw Exception("خطأ أثناء تفريغ السلة: $e");
     }
   }
+
+
+
+
+
+
+
+
+
+// ===================== Customer Address =====================
+
+  // 🔹 إضافة عنوان جديد (POST)
+  Future<bool> addCustomerAddress(Map<String, dynamic> addressData, {String? token}) async {
+    final url = Uri.parse("$authBaseUrl/customer-address");
+    final response = await http.post(
+      url,
+      headers: authHeaders(token: token),
+      body: json.encode(addressData),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final jsonData = json.decode(response.body);
+      return jsonData['isSuccess'] ?? false;
+    } else {
+      throw Exception("فشل إضافة العنوان: ${response.statusCode} - ${response.body}");
+    }
+  }
+
+  // 🔹 جلب جميع العناوين (GET)
+  Future<List<dynamic>> getCustomerAddresses({String? token}) async {
+    final url = Uri.parse("$authBaseUrl/customer-address");
+    final response = await http.get(url, headers: authHeaders(token: token));
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      return jsonData['data'] ?? [];
+    } else {
+      throw Exception("فشل جلب العناوين: ${response.statusCode} - ${response.body}");
+    }
+  }
+
+  // 🔹 جلب عنوان محدد بالـ PublicId (GET)
+  Future<Map<String, dynamic>> getCustomerAddressById(String publicId, {String? token}) async {
+    final url = Uri.parse("$authBaseUrl/customer-address/$publicId");
+    final response = await http.get(url, headers: authHeaders(token: token));
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      return jsonData['data'] ?? {};
+    } else {
+      throw Exception("فشل جلب العنوان: ${response.statusCode} - ${response.body}");
+    }
+  }
+
+  // 🔹 تعديل عنوان محدد بالـ PublicId (PUT)
+  Future<bool> updateCustomerAddress(String publicId, Map<String, dynamic> updatedData, {String? token}) async {
+    final url = Uri.parse("$authBaseUrl/customer-address/$publicId");
+    final response = await http.put(
+      url,
+      headers: authHeaders(token: token),
+      body: json.encode(updatedData),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      return jsonData['isSuccess'] ?? false;
+    } else {
+      throw Exception("فشل تعديل العنوان: ${response.statusCode} - ${response.body}");
+    }
+  }
+
+  // 🔹 حذف عنوان محدد بالـ PublicId (DELETE)
+  Future<bool> deleteCustomerAddress(String publicId, {String? token}) async {
+    final url = Uri.parse("$authBaseUrl/customer-address/$publicId");
+    final response = await http.delete(url, headers: authHeaders(token: token));
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      return jsonData['isSuccess'] ?? false;
+    } else {
+      throw Exception("فشل حذف العنوان: ${response.statusCode} - ${response.body}");
+    }
+  }
 }
+
+
+
+

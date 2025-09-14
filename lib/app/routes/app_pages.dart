@@ -5,8 +5,8 @@ import '../modules/settings/views/SettingsView.dart';
 
 import '../modules/base/bindings/base_binding.dart';
 import '../modules/base/views/base_view.dart';
-import '../modules/calendar/bindings/calendar_binding.dart';
-import '../modules/calendar/views/calendar_view.dart';
+import '../modules/address/bindings/address_binding.dart';
+import '../modules/address/views/address_view.dart';
 import '../modules/cart/bindings/cart_binding.dart';
 import '../modules/cart/views/cart_view.dart';
 import '../modules/category/bindings/category_binding.dart';
@@ -72,9 +72,9 @@ class AppPages {
       binding: CategoryBinding(),
     ),
     GetPage(
-      name: _Paths.CALENDAR,
-      page: () => const CalendarView(),
-      binding: CalendarBinding(),
+      name: _Paths.ADDRESS,
+      page: () => const AdressView(),
+      binding: AddressBinding(),
     ),
     GetPage(
       name: _Paths.PROFILE,

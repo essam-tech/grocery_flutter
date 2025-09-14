@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../../calendar/controllers/calendar_controller.dart';
+import '../../address/controllers/address_controller.dart';
 import '../../category/controllers/category_controller.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../profile/controllers/ProfileController.dart';
@@ -11,7 +11,7 @@ class BaseBinding extends Bindings {
     Get.lazyPut<BaseController>(() => BaseController());
     Get.lazyPut<HomeController>(() => HomeController());
     Get.lazyPut<CategoryController>(() => CategoryController());
-    Get.lazyPut<CalendarController>(() => CalendarController());
+    Get.lazyPut<AddressController>(() => AddressController());
     Get.lazyPut<ProfileController>(() => ProfileController());
   }
 }

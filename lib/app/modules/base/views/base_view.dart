@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 
 import '../../../../utils/constants.dart';
 import '../../../routes/app_pages.dart';
-import '../../calendar/views/calendar_view.dart';
+import '../../address/views/address_view.dart';
 import '../../category/views/category_view.dart';
 import '../../profile/views/ProfileView.dart';
 import '../controllers/base_controller.dart';
@@ -31,7 +31,7 @@ class BaseView extends GetView<BaseController> {
               HomeView(),
               CategoryView(),
               Center(),
-              CalendarView(),
+              AdressView(),
               ProfileView(),
             ],
           ),
@@ -53,11 +53,20 @@ class BaseView extends GetView<BaseController> {
                 showSelectedLabels: false,
                 showUnselectedLabels: false,
                 items: [
-                  _mBottomNavItem(label: 'Home', icon: Constants.homeIcon, index: 0),
-                  _mBottomNavItem(label: 'Category', icon: Constants.categoryIcon, index: 1),
-                  const BottomNavigationBarItem(label: '', icon: SizedBox.shrink()),
-                  _mBottomNavItem(label: 'Calendar', icon: Constants.calendarIcon, index: 3),
-                  _mBottomNavItem(label: 'Profile', icon: Constants.userIcon, index: 4),
+                  _mBottomNavItem(
+                      label: 'Home', icon: Constants.homeIcon, index: 0),
+                  _mBottomNavItem(
+                      label: 'Category',
+                      icon: Constants.categoryIcon,
+                      index: 1),
+                  const BottomNavigationBarItem(
+                      label: '', icon: SizedBox.shrink()),
+                  _mBottomNavItem(
+                      label: 'Address',
+                      icon: Constants.calendarIcon,
+                      index: 3),
+                  _mBottomNavItem(
+                      label: 'Profile', icon: Constants.userIcon, index: 4),
                 ],
                 onTap: controller.changeScreen,
               ),
