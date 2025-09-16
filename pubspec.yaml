@@ -19,6 +19,12 @@ dependencies:
   flutter_animate: # for animation
   image_picker: ^1.2.0
 
+  flutter_map: ^5.0.0 # مكتبة الخريطة
+  latlong2: ^0.9.1 # مكتبة LatLng للموقع
+  flutter_osm_plugin: ^1.4.2
+  geolocator: ^14.0.2
+
+
 
   flutter: 
     sdk: flutter
@@ -65,4 +71,3 @@ flutter:
           weight: 500
         - asset: assets/fonts/Cairo-SemiBold.ttf
           weight: 900
-

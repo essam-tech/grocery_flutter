@@ -31,7 +31,7 @@ class BaseView extends GetView<BaseController> {
               HomeView(),
               CategoryView(),
               Center(),
-              AdressView(),
+              AddressView(),
               ProfileView(),
             ],
           ),

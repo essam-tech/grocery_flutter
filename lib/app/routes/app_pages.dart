@@ -73,7 +73,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.ADDRESS,
-      page: () => const AdressView(),
+      page: () => const AddressView(),
       binding: AddressBinding(),
     ),
     GetPage(

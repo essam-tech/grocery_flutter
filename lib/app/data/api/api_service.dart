@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 import '../models/product_section_model.dart';
 import '../models/ProfileModel.dart';
+import '../models/CustomerAddress .dart'; // موديل العنوان الجديد
 
 class ApiService {
   // 🔗 الرابط الأساسي للمنتجات
@@ -249,7 +250,7 @@ class ApiService {
     }
   }
 
-// ------------------ إضافة عنصر للسلة ------------------
+  // ------------------ إضافة عنصر للسلة ------------------
   static Future<CartDetail> addCartItem({
     required int productId,
     required int productVariantId,
@@ -282,7 +283,7 @@ class ApiService {
     }
   }
 
-// ------------------ تحديث عنصر في السلة ------------------
+  // ------------------ تحديث عنصر في السلة ------------------
   static Future<CartDetail> updateCartItem({
     required int cartDetailId,
     required int quantity,
@@ -306,7 +307,7 @@ class ApiService {
     }
   }
 
-// ------------------ حذف عنصر من السلة ------------------
+  // ------------------ حذف عنصر من السلة ------------------
   static Future<bool> deleteCartItem(int cartDetailId) async {
     final url = Uri.parse("$authBaseUrl/cart/details/$cartDetailId");
     try {
@@ -317,7 +318,7 @@ class ApiService {
     }
   }
 
-// ------------------ تفريغ السلة بالكامل ------------------
+  // ------------------ تفريغ السلة بالكامل ------------------
   static Future<bool> clearCart(int cartHeaderId) async {
     final url = Uri.parse("$authBaseUrl/cart/$cartHeaderId/clear");
     try {
@@ -328,73 +329,73 @@ class ApiService {
     }
   }
 
-
-
-
-
-
-
-
-
-// ===================== Customer Address =====================
+  // ===================== Customer Address =====================
 
   // 🔹 إضافة عنوان جديد (POST)
-  Future<bool> addCustomerAddress(Map<String, dynamic> addressData, {String? token}) async {
+  Future<bool> addCustomerAddress(CustomerAddress address,
+      {String? token}) async {
     final url = Uri.parse("$authBaseUrl/customer-address");
     final response = await http.post(
       url,
       headers: authHeaders(token: token),
-      body: json.encode(addressData),
+      body: json.encode(address.toJson()),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final jsonData = json.decode(response.body);
       return jsonData['isSuccess'] ?? false;
     } else {
-      throw Exception("فشل إضافة العنوان: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل إضافة العنوان: ${response.statusCode} - ${response.body}");
     }
   }
 
   // 🔹 جلب جميع العناوين (GET)
-  Future<List<dynamic>> getCustomerAddresses({String? token}) async {
+  Future<List<CustomerAddress>> getCustomerAddresses({String? token}) async {
     final url = Uri.parse("$authBaseUrl/customer-address");
     final response = await http.get(url, headers: authHeaders(token: token));
 
     if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      return jsonData['data'] ?? [];
+      final jsonData = json.decode(response.body)['data'] as List<dynamic>;
+      return jsonData.map((e) => CustomerAddress.fromJson(e)).toList();
     } else {
-      throw Exception("فشل جلب العناوين: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل جلب العناوين: ${response.statusCode} - ${response.body}");
     }
   }
 
   // 🔹 جلب عنوان محدد بالـ PublicId (GET)
-  Future<Map<String, dynamic>> getCustomerAddressById(String publicId, {String? token}) async {
+  Future<CustomerAddress> getCustomerAddressById(String publicId,
+      {String? token}) async {
     final url = Uri.parse("$authBaseUrl/customer-address/$publicId");
     final response = await http.get(url, headers: authHeaders(token: token));
 
     if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      return jsonData['data'] ?? {};
+      final jsonData = json.decode(response.body)['data'];
+      return CustomerAddress.fromJson(jsonData);
     } else {
-      throw Exception("فشل جلب العنوان: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل جلب العنوان: ${response.statusCode} - ${response.body}");
     }
   }
 
   // 🔹 تعديل عنوان محدد بالـ PublicId (PUT)
-  Future<bool> updateCustomerAddress(String publicId, Map<String, dynamic> updatedData, {String? token}) async {
+  Future<bool> updateCustomerAddress(
+      String publicId, CustomerAddress updatedAddress,
+      {String? token}) async {
     final url = Uri.parse("$authBaseUrl/customer-address/$publicId");
     final response = await http.put(
       url,
       headers: authHeaders(token: token),
-      body: json.encode(updatedData),
+      body: json.encode(updatedAddress.toJson()),
     );
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       return jsonData['isSuccess'] ?? false;
     } else {
-      throw Exception("فشل تعديل العنوان: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل تعديل العنوان: ${response.statusCode} - ${response.body}");
     }
   }
 
@@ -407,11 +408,49 @@ class ApiService {
       final jsonData = json.decode(response.body);
       return jsonData['isSuccess'] ?? false;
     } else {
-      throw Exception("فشل حذف العنوان: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل حذف العنوان: ${response.statusCode} - ${response.body}");
+    }
+  }
+
+  // 🔹 جلب جميع الدول
+  Future<List<Map<String, dynamic>>> getCountries({String? token}) async {
+    final url = Uri.parse("$authBaseUrl/countries");
+    final response = await http.get(url, headers: authHeaders(token: token));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'] as List<dynamic>;
+      return data.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+    } else {
+      throw Exception(
+          "فشل جلب الدول: ${response.statusCode} - ${response.body}");
+    }
+  }
+
+// 🔹 جلب جميع المناطق لمنطقة معينة
+  Future<List<Map<String, dynamic>>> getRegions(int countryId,
+      {String? token}) async {
+    final url = Uri.parse("$authBaseUrl/countries/$countryId/regions");
+    final response = await http.get(url, headers: authHeaders(token: token));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'] as List<dynamic>;
+      return data.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+    } else {
+      throw Exception(
+          "فشل جلب المناطق: ${response.statusCode} - ${response.body}");
+    }
+  }
+
+// 🔹 جلب المدن لمنطقة معينة
+  Future<List<Map<String, dynamic>>> getCities(int regionId,
+      {String? token}) async {
+    final url = Uri.parse("$authBaseUrl/regions/$regionId/cities");
+    final response = await http.get(url, headers: authHeaders(token: token));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'] as List<dynamic>;
+      return data.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+    } else {
+      throw Exception(
+          "فشل جلب المدن: ${response.statusCode} - ${response.body}");
     }
   }
 }
-
-
-
-

@@ -12,7 +12,7 @@ import '../../../components/product_count_item_for_product.dart';
 import '../controllers/product_details_controller.dart';
 
 class ProductDetailsView extends GetView<ProductDetailsController> {
-  const ProductDetailsView({Key? key}) : super(key: key);
+  const ProductDetailsView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,23 +69,23 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                       final product = controller.product.value;
                       if (product == null) return const SizedBox();
                       return Hero(
-                        tag: product.productId,
+                        tag: "product_${product.productId}_card", // 👈 يطابق الكارت
                         child: (product.productMainImageUrl?.isNotEmpty ?? false)
                             ? Image.network(
-                                product.productMainImageUrl!,
-                                width: 250.w,
-                                height: 225.h,
-                                fit: BoxFit.contain,
-                              ).animate().fade().scale(
-                                    duration: 800.ms,
-                                    curve: Curves.fastOutSlowIn,
-                                  )
+                          product.productMainImageUrl!,
+                          width: 250.w,
+                          height: 225.h,
+                          fit: BoxFit.contain,
+                        ).animate().fade().scale(
+                          duration: 800.ms,
+                          curve: Curves.fastOutSlowIn,
+                        )
                             : Container(
-                                width: 250.w,
-                                height: 225.h,
-                                color: Colors.grey[300],
-                                child: Icon(Icons.image_not_supported, size: 40.sp),
-                              ),
+                          width: 250.w,
+                          height: 225.h,
+                          color: Colors.grey[300],
+                          child: Icon(Icons.image_not_supported, size: 40.sp),
+                        ),
                       );
                     }),
                   ),
@@ -107,10 +107,10 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                         product.productName,
                         style: theme.textTheme.displayMedium,
                       ).animate().fade().slideX(
-                            duration: 300.ms,
-                            begin: -1,
-                            curve: Curves.easeInSine,
-                          ),
+                        duration: 300.ms,
+                        begin: -1,
+                        curve: Curves.easeInSine,
+                      ),
                     ),
                     ProductCountItemForProduct(product: product).animate().fade(duration: 200.ms),
                   ],
@@ -130,14 +130,14 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                     fontWeight: FontWeight.bold,
                   ),
                 ).animate().fade().slideX(
-                      duration: 300.ms,
-                      begin: -1,
-                      curve: Curves.easeInSine,
-                    );
+                  duration: 300.ms,
+                  begin: -1,
+                  curve: Curves.easeInSine,
+                );
               }),
             ),
 
-            // ===== وصف المنتج مع Read more =====
+            // ===== وصف المنتج =====
             8.verticalSpace,
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -156,10 +156,10 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                       overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
                       style: theme.textTheme.bodyLarge,
                     ).animate().fade().slideX(
-                          duration: 300.ms,
-                          begin: -1,
-                          curve: Curves.easeInSine,
-                        ),
+                      duration: 300.ms,
+                      begin: -1,
+                      curve: Curves.easeInSine,
+                    ),
                     if (description.length > 100)
                       TextButton(
                         onPressed: controller.toggleDescription,
@@ -198,10 +198,10 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                     );
                   },
                 ).animate().fade().slideY(
-                      duration: 300.ms,
-                      begin: 1,
-                      curve: Curves.easeInSine,
-                    ),
+                  duration: 300.ms,
+                  begin: 1,
+                  curve: Curves.easeInSine,
+                ),
               );
             }),
 
@@ -214,7 +214,6 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 onPressed: () {
                   final product = controller.product.value;
                   if (product != null) {
-                    product.orderQuantity = controller.orderQuantity.value;
                     controller.addToCart();
                   }
                 },
@@ -223,10 +222,10 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
                 verticalPadding: 16.h,
                 hasShadow: true,
               ).animate().fade().slideY(
-                    duration: 300.ms,
-                    begin: 1,
-                    curve: Curves.easeInSine,
-                  ),
+                duration: 300.ms,
+                begin: 1,
+                curve: Curves.easeInSine,
+              ),
             ),
             30.verticalSpace,
           ],
@@ -235,7 +234,6 @@ class ProductDetailsView extends GetView<ProductDetailsController> {
     );
   }
 
-  // زر دائري زجاجي للأيقونات
   Widget _glassIconButton({required VoidCallback onTap, required String icon}) {
     return InkWell(
       onTap: onTap,
