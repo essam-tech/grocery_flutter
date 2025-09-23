@@ -2,99 +2,96 @@ import 'package:get/get.dart';
 import '../../cart/controllers/cart_controller.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/api/api_service.dart';
+import '../../../data/local/my_shared_pref.dart';
 
 class BaseController extends GetxController {
-  // current screen index
-  int currentIndex = 0;
+  /// Current screen index
+  RxInt currentIndex = 0.obs;
 
-  // to count the number of products in the cart
-  int cartItemsCount = 0;
+  /// Number of items in the cart
+  RxInt cartItemsCount = 0.obs;
 
-  // قائمة كل المنتجات
-  List<ProductModel> allProducts = [];
+  /// All products for home page
+  RxList<ProductModel> allProducts = <ProductModel>[].obs;
+
+  /// Logged-in user data
+  RxInt loggedInCustomerId = 0.obs;
+  RxString loggedInToken = ''.obs;
+  RxString loggedInPhone = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
+    
+    // Load user data from local storage
+    loggedInCustomerId.value = MySharedPref.getUserId() ?? 0;
+    loggedInToken.value = MySharedPref.getToken() ?? '';
+    loggedInPhone.value = MySharedPref.getPhone() ?? '';
+
+    // Fetch products
     getAllProducts();
 
-    // ربط العدادات مع CartController
+    // Observe CartController if registered
     if (Get.isRegistered<CartController>()) {
       final cartController = Get.find<CartController>();
-      // أي تغير في منتجات الكارت يحدث تحديث للعداد
       ever(cartController.products, (_) {
-        getCartItemsCountFromCart(cartController);
+        updateCartCount(cartController);
       });
     }
   }
 
-  /// تغيير الشاشة المحددة
-  void changeScreen(int selectedIndex) {
-    currentIndex = selectedIndex;
-    update();
+  /// Change current screen
+  void changeScreen(int index) {
+    currentIndex.value = index;
   }
 
-  /// جلب كل المنتجات من الـ API
+  /// Fetch all products from API
   Future<void> getAllProducts() async {
     try {
-      allProducts = await ApiService.getHomePageProducts();
-      getCartItemsCount();
+      final products = await ApiService.getHomePageProducts();
+      allProducts.assignAll(products);
+      updateCartCountFromProducts();
     } catch (e) {
       print("Error fetching products: $e");
     }
   }
 
-  /// حساب عدد المنتجات الموجودة في الكارت بشكل آمن
-  void getCartItemsCount() {
-    if (Get.isRegistered<CartController>()) {
-      final cartController = Get.find<CartController>();
-      cartItemsCount = cartController.totalItems;
-    } else {
-      cartItemsCount = allProducts.fold<int>(
-        0,
-        (previousValue, element) => previousValue + (element.orderQuantity),
-      );
-    }
-    update(['CartBadge']);
+  /// Update cart count from CartController
+  void updateCartCount(CartController cartController) {
+    cartItemsCount.value = cartController.totalItems;
   }
 
-  /// تحديث العد من CartController مباشرة
-  void getCartItemsCountFromCart(CartController cartController) {
-    cartItemsCount = cartController.totalItems;
-    update(['CartBadge']);
+  /// Update cart count from local products (fallback)
+  void updateCartCountFromProducts() {
+    cartItemsCount.value = allProducts.fold<int>(
+      0,
+      (prev, p) => prev + p.orderQuantity,
+    );
   }
 
-  /// زيادة كمية المنتج بشكل آمن
-  void onIncreasePressed(int productId) {
-    if (allProducts.any((p) => p.productId == productId)) {
-      final product = allProducts.firstWhere((p) => p.productId == productId);
+  /// Increase product quantity
+  void increaseProductQuantity(int productId) {
+    final product = allProducts.firstWhereOrNull((p) => p.productId == productId);
+    if (product != null) {
       product.orderQuantity += 1;
-      getCartItemsCount();
-
+      updateCartCountFromProducts();
       if (Get.isRegistered<CartController>()) {
         Get.find<CartController>().products.refresh();
       }
-      update(['ProductQuantity']);
     } else {
-      print("Product with id $productId not found in allProducts");
+      print("Product with id $productId not found.");
     }
   }
 
-  /// تقليل كمية المنتج بشكل آمن
-  void onDecreasePressed(int productId) {
-    if (allProducts.any((p) => p.productId == productId)) {
-      final product = allProducts.firstWhere((p) => p.productId == productId);
-      if (product.orderQuantity > 0) {
-        product.orderQuantity -= 1;
-        getCartItemsCount();
-
-        if (Get.isRegistered<CartController>()) {
-          Get.find<CartController>().products.refresh();
-        }
-        update(['ProductQuantity']);
+  /// Decrease product quantity
+  void decreaseProductQuantity(int productId) {
+    final product = allProducts.firstWhereOrNull((p) => p.productId == productId);
+    if (product != null && product.orderQuantity > 0) {
+      product.orderQuantity -= 1;
+      updateCartCountFromProducts();
+      if (Get.isRegistered<CartController>()) {
+        Get.find<CartController>().products.refresh();
       }
-    } else {
-      print("Product with id $productId not found in allProducts");
     }
   }
 }

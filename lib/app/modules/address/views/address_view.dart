@@ -5,11 +5,30 @@ import '../controllers/address_controller.dart';
 import 'add_address_map_view.dart';
 import '../../../data/models/CustomerAddress .dart';
 
-class AddressView extends GetView<AddressController> {
-  const AddressView({Key? key}) : super(key: key);
+class AddressView extends StatelessWidget {
+  final int customerId;
+  final String token;
+  final String? userPhone;
+
+  AddressView({
+    Key? key,
+    required this.customerId,
+    required this.token,
+    this.userPhone,
+  }) : super(key: key) {
+    // تسجيل الـController إذا لم يكن موجود
+    if (!Get.isRegistered<AddressController>()) {
+      Get.put(AddressController(
+        customerId: customerId,
+        token: token,
+        userPhone: userPhone,
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<AddressController>();
     final theme = context.theme;
 
     return Scaffold(
@@ -37,9 +56,8 @@ class AddressView extends GetView<AddressController> {
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final CustomerAddress addr = controller.addresses[index];
-            final titleText = addr.streetAddress1?.isNotEmpty ?? false
-                ? addr.streetAddress1!
-                : '—';
+            final titleText =
+                addr.streetAddress1?.isNotEmpty ?? false ? addr.streetAddress1! : '—';
             final subtitleText = [
               if ((addr.cityName?.isNotEmpty ?? false)) addr.cityName,
               if ((addr.countryName?.isNotEmpty ?? false)) addr.countryName,
@@ -49,16 +67,15 @@ class AddressView extends GetView<AddressController> {
               elevation: 2,
               child: ListTile(
                 title: Text(titleText),
-                subtitle: Text(subtitleText.isNotEmpty ? subtitleText : 'City ID: ${addr.cityId}'),
+                subtitle: Text(subtitleText.isNotEmpty
+                    ? subtitleText
+                    : 'City ID: ${addr.cityId}'),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
                     controller.deleteAddress(addr.customerAddressPublicId);
                   },
                 ),
-                onTap: () {
-                  // ممكن تفتح شاشة تعديل العنوان
-                },
               ),
             );
           },
@@ -70,7 +87,11 @@ class AddressView extends GetView<AddressController> {
           heroTag: 'add_address',
           child: const Icon(Icons.add),
           onPressed: () async {
-            final result = await Get.to(() => AddAddressMapView(token: controller.token ?? ''));
+            final result = await Get.to(() => PickLocationPage(
+                  token: controller.token,
+                  customerId: controller.customerId,
+                  userPhone: controller.userPhone,
+                ));
             if (result == true) controller.fetchAddresses();
           },
         ),

@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import '../modules/profile/bindings/ProflieBinding.dart';
 import '../modules/settings/bindings/SettingsBinding.dart';
 import '../modules/settings/views/SettingsView.dart';
-
 import '../modules/base/bindings/base_binding.dart';
 import '../modules/base/views/base_view.dart';
 import '../modules/address/bindings/address_binding.dart';
@@ -24,6 +23,7 @@ import '../modules/splash/views/splash_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
 import '../modules/login/views/LoginView.dart';
+import '../../app/modules/base/controllers/base_controller.dart';
 
 part 'app_routes.dart';
 
@@ -58,7 +58,6 @@ class AppPages {
       page: () => const CartView(),
       binding: CartBinding(),
     ),
-    // === Product Details بدون named parameter ===
     GetPage(
       name: _Paths.PRODUCT_DETAILS,
       page: () => const ProductDetailsView(),
@@ -73,7 +72,14 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.ADDRESS,
-      page: () => const AddressView(),
+      page: () {
+        final baseController = Get.find<BaseController>();
+        return AddressView(
+          customerId: baseController.loggedInCustomerId.value,
+          token: baseController.loggedInToken.value,
+          userPhone: baseController.loggedInPhone.value,
+        );
+      },
       binding: AddressBinding(),
     ),
     GetPage(

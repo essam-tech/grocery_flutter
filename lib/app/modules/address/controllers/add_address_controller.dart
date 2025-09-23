@@ -5,36 +5,65 @@ import '../../../data/api/api_service.dart';
 
 class AddAddressController extends GetxController {
   GeoPoint? selectedPoint; // الموقع المختار
-  final ApiService api = ApiService();
+  final int customerId; // ✅ رقم المستخدم الحالي
+  final String? userPhone; // رقم الهاتف من المستخدم
+
+  AddAddressController({
+    required this.customerId,
+    this.userPhone,
+  });
 
   // لتحديث الموقع عند الضغط على الخريطة
   void setSelectedPoint(GeoPoint point) {
     selectedPoint = point;
+    print("📍 تم اختيار الموقع: Latitude=${point.latitude}, Longitude=${point.longitude}");
     update(); // لتحديث الواجهة لو استخدمنا GetBuilder
   }
 
   // حفظ العنوان على السيرفر
   Future<bool> saveAddress(String token) async {
-    if (selectedPoint == null) return false;
+    if (selectedPoint == null) {
+      print("⚠️ لم يتم اختيار أي موقع بعد!");
+      return false;
+    }
 
     final newAddress = CustomerAddress(
       customerAddressId: 0,
       customerAddressPublicId: "",
+      customerId: customerId, // ✅ الآن موجود
       streetAddress1: "موقع من الخريطة",
       streetAddress2: "",
-      cityId: 0,
-      cityName: "",
-      regionId: 0,
-      regionName: "",
-      countryId: 0,
-      countryName: "",
+      cityId: 1,
+      cityName: "Sana'a",
+      regionId: 1,
+      regionName: "Amanat Al Asimah",
+      countryId: 1,
+      countryName: "Yemen",
       postalCode: "",
-      phone: "",
+      phone: userPhone?.isNotEmpty == true ? userPhone! : "000000000",
       isDefault: false,
       latitude: selectedPoint!.latitude,
       longitude: selectedPoint!.longitude,
     );
 
-    return await api.addCustomerAddress(newAddress, token: token);
+    print("💾 جاري إرسال العنوان للسيرفر...");
+    print("🔹 البيانات المرسلة: ${newAddress.toJson()}");
+
+    try {
+      final success = await ApiService.addCustomerAddress(
+        token: token,
+        address: newAddress,
+      );
+      if (success) {
+        print("✅ تم حفظ العنوان بنجاح!");
+      } else {
+        print("❌ فشل حفظ العنوان.");
+      }
+      return success;
+    } catch (e, stackTrace) {
+      print("🚨 حدث خطأ أثناء حفظ العنوان: $e");
+      print("📜 تفاصيل الخطأ:\n$stackTrace");
+      return false;
+    }
   }
 }

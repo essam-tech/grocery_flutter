@@ -1,71 +1,47 @@
 import 'package:get/get.dart';
-import '../../../data/api/api_service.dart';
 import '../../../data/models/CustomerAddress .dart';
+import '../../../data/api/api_service.dart';
 
 class AddressController extends GetxController {
-  var addresses = <CustomerAddress>[].obs;
-  var isLoading = false.obs;
+  final int customerId;
+  final String token;
+  final String? userPhone;
 
-  String? token; // توكن المستخدم
-  final ApiService apiService = ApiService();
+  // Observables
+  final addresses = <CustomerAddress>[].obs;
+  final isLoading = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchAddresses();
+  AddressController({
+    required this.customerId,
+    required this.token,
+    this.userPhone,
+  }) {
+    if (customerId != 0 && token.isNotEmpty) {
+      fetchAddresses();
+    }
   }
 
   Future<void> fetchAddresses() async {
-    if (token == null) return;
+    if (customerId == 0 || token.isEmpty) return;
+    isLoading.value = true;
     try {
-      isLoading.value = true;
-      final data = await apiService.getCustomerAddresses(token: token);
-      addresses.assignAll(data);
+      final result = await ApiService.getCustomerAddresses(token: token);
+      addresses.value = result;
     } catch (e) {
-      print("Error fetching addresses: $e");
+      print("🚨 خطأ أثناء جلب العناوين: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> deleteAddress(String publicId) async {
-    if (token == null) return;
+    if (token.isEmpty) return;
     try {
-      final success = await apiService.deleteCustomerAddress(publicId, token: token);
-      if (success) {
-        addresses.removeWhere((a) => a.customerAddressPublicId == publicId);
-      }
+      final success =
+          await ApiService.deleteCustomerAddress(token: token, publicId: publicId);
+      if (success) fetchAddresses();
     } catch (e) {
-      print("Error deleting address: $e");
-    }
-  }
-
-  Future<void> addAddress(CustomerAddress newAddress) async {
-    if (token == null) return;
-    try {
-      final success = await apiService.addCustomerAddress(newAddress, token: token);
-      if (success) await fetchAddresses();
-    } catch (e) {
-      print("Error adding address: $e");
-    }
-  }
-
-  Future<void> updateAddress(CustomerAddress updatedAddress) async {
-    if (token == null) return;
-    try {
-      final success = await apiService.updateCustomerAddress(
-        updatedAddress.customerAddressPublicId, 
-        updatedAddress,
-        token: token
-      );
-      if (success) {
-        final index = addresses.indexWhere(
-          (a) => a.customerAddressPublicId == updatedAddress.customerAddressPublicId
-        );
-        if (index != -1) addresses[index] = updatedAddress;
-      }
-    } catch (e) {
-      print("Error updating address: $e");
+      print("🚨 خطأ أثناء حذف العنوان: $e");
     }
   }
 }

@@ -15,6 +15,8 @@ class MySharedPref {
   static const String _currentLocalKey = 'current_local';
   static const String _lightThemeKey = 'is_theme_light';
   static const String _authTokenKey = 'auth_token';
+  static const String _userIdKey = 'user_id';
+  static const String _userPhoneKey = 'user_phone';
 
   /// ✅ تهيئة SharedPreferences
   static Future<void> init() async {
@@ -54,8 +56,7 @@ class MySharedPref {
   static Future<void> setToken(String token) async =>
       await _sharedPreferences.setString(_authTokenKey, token);
 
-  static Future<String?> getToken() async =>
-      _sharedPreferences.getString(_authTokenKey);
+  static String? getToken() => _sharedPreferences.getString(_authTokenKey);
 
   static Future<void> clearToken() async =>
       await _sharedPreferences.remove(_authTokenKey);
@@ -63,6 +64,18 @@ class MySharedPref {
   static bool isLoggedIn() =>
       _sharedPreferences.containsKey(_authTokenKey) &&
       (_sharedPreferences.getString(_authTokenKey)?.isNotEmpty ?? false);
+
+  // ---------------- 🧾 User ID ----------------
+  static Future<void> setUserId(int id) async =>
+      await _sharedPreferences.setInt(_userIdKey, id);
+
+  static int? getUserId() => _sharedPreferences.getInt(_userIdKey);
+
+  // ---------------- 🧾 User Phone ----------------
+  static Future<void> setPhone(String phone) async =>
+      await _sharedPreferences.setString(_userPhoneKey, phone);
+
+  static String? getPhone() => _sharedPreferences.getString(_userPhoneKey);
 
   // ---------------- 🧹 Clear All ----------------
   static Future<void> clear() async => await _sharedPreferences.clear();
