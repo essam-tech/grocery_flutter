@@ -14,7 +14,6 @@ class AddressBinding extends Bindings {
     Get.lazyPut<AddressController>(() => AddressController(
           customerId: customerId ?? 0, // 0 كقيمة افتراضية
           token: token ?? '',
-          userPhone: userPhone,
         ));
   }
 }

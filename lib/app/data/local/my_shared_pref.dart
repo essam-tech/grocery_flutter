@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../config/translations/localization_service.dart';
+import '../models/CustomerAddress .dart';
 
 class MySharedPref {
   // منع إنشاء instance
@@ -17,6 +18,7 @@ class MySharedPref {
   static const String _authTokenKey = 'auth_token';
   static const String _userIdKey = 'user_id';
   static const String _userPhoneKey = 'user_phone';
+  static const String _addressesKey = 'user_addresses'; // جديد
 
   /// ✅ تهيئة SharedPreferences
   static Future<void> init() async {
@@ -76,6 +78,30 @@ class MySharedPref {
       await _sharedPreferences.setString(_userPhoneKey, phone);
 
   static String? getPhone() => _sharedPreferences.getString(_userPhoneKey);
+
+  // ---------------- 🏠 Addresses ----------------
+  static Future<void> setAddresses(List<CustomerAddress> addresses) async {
+    List<String> jsonList = addresses.map((a) => jsonEncode(a.toJson())).toList();
+    await _sharedPreferences.setStringList(_addressesKey, jsonList);
+  }
+
+  static List<CustomerAddress> getAddresses() {
+    List<String> jsonList = _sharedPreferences.getStringList(_addressesKey) ?? [];
+    return jsonList.map((e) => CustomerAddress.fromJson(jsonDecode(e))).toList();
+  }
+
+  static Future<void> addAddress(CustomerAddress newAddress) async {
+    List<CustomerAddress> currentAddresses = getAddresses();
+    currentAddresses.add(newAddress);
+    await setAddresses(currentAddresses);
+  }
+
+  static Future<void> removeAddress(CustomerAddress address) async {
+    List<CustomerAddress> currentAddresses = getAddresses();
+    currentAddresses.removeWhere(
+        (a) => a.customerAddressPublicId == address.customerAddressPublicId);
+    await setAddresses(currentAddresses);
+  }
 
   // ---------------- 🧹 Clear All ----------------
   static Future<void> clear() async => await _sharedPreferences.clear();

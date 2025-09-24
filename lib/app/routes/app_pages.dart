@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+
 import '../modules/profile/bindings/ProflieBinding.dart';
 import '../modules/settings/bindings/SettingsBinding.dart';
 import '../modules/settings/views/SettingsView.dart';
@@ -23,7 +24,6 @@ import '../modules/splash/views/splash_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
 import '../modules/login/views/LoginView.dart';
-import '../../app/modules/base/controllers/base_controller.dart';
 
 part 'app_routes.dart';
 
@@ -73,11 +73,10 @@ class AppPages {
     GetPage(
       name: _Paths.ADDRESS,
       page: () {
-        final baseController = Get.find<BaseController>();
+        final args = Get.arguments as Map<String, dynamic>;
         return AddressView(
-          customerId: baseController.loggedInCustomerId.value,
-          token: baseController.loggedInToken.value,
-          userPhone: baseController.loggedInPhone.value,
+          customerId: args['customerId'],
+          token: args['token'],
         );
       },
       binding: AddressBinding(),

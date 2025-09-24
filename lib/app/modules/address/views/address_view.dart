@@ -8,20 +8,17 @@ import '../../../data/models/CustomerAddress .dart';
 class AddressView extends StatelessWidget {
   final int customerId;
   final String token;
-  final String? userPhone;
 
   AddressView({
     Key? key,
     required this.customerId,
     required this.token,
-    this.userPhone,
   }) : super(key: key) {
     // تسجيل الـController إذا لم يكن موجود
     if (!Get.isRegistered<AddressController>()) {
       Get.put(AddressController(
         customerId: customerId,
         token: token,
-        userPhone: userPhone,
       ));
     }
   }
@@ -56,8 +53,9 @@ class AddressView extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final CustomerAddress addr = controller.addresses[index];
-            final titleText =
-                addr.streetAddress1?.isNotEmpty ?? false ? addr.streetAddress1! : '—';
+            final titleText = addr.streetAddress1?.isNotEmpty == true
+                ? addr.streetAddress1!
+                : '—';
             final subtitleText = [
               if ((addr.cityName?.isNotEmpty ?? false)) addr.cityName,
               if ((addr.countryName?.isNotEmpty ?? false)) addr.countryName,
@@ -90,7 +88,6 @@ class AddressView extends StatelessWidget {
             final result = await Get.to(() => PickLocationPage(
                   token: controller.token,
                   customerId: controller.customerId,
-                  userPhone: controller.userPhone,
                 ));
             if (result == true) controller.fetchAddresses();
           },

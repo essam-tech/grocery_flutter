@@ -5,38 +5,29 @@ import '../../../data/api/api_service.dart';
 import '../../../data/models/ProfileModel.dart';
 
 class LoginController extends GetxController {
-  // 📝 Controllers
   final emailController = TextEditingController();
   final codeController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final phoneController = TextEditingController();
 
-  // 💡 Observables
   var isCodeHidden = true.obs;
   var isLoading = false.obs;
   var step = 0.obs; // 0=إرسال كود, 1=تحقق الكود, 2=استكمال التسجيل
 
-  // 🔑 Token بعد التحقق
   String? authToken;
 
-  /// Toggle visibility for code
   void toggleCodeVisibility() {
     isCodeHidden.value = !isCodeHidden.value;
     print("🔑 isCodeHidden: ${isCodeHidden.value}");
   }
 
-  /// Step 0: إرسال كود التحقق
   Future<void> sendVerificationCode() async {
     final email = emailController.text.trim();
-    print("📩 Step 0: إرسال كود التحقق للبريد: $email");
-
-    if (email.isEmpty) {
-      print("⚠️ البريد الإلكتروني فارغ");
-      return;
-    }
+    if (email.isEmpty) return;
 
     isLoading.value = true;
+    print("📩 Step 0: إرسال كود التحقق للبريد: $email");
     try {
       if (await ApiService.sendVerificationCode(email)) {
         step.value = 1;
@@ -51,18 +42,13 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Step 1: التحقق من الكود واستلام التوكن
   Future<void> verifyCode() async {
     final email = emailController.text.trim();
     final code = codeController.text.trim();
-    print("🔐 Step 1: التحقق من الكود. البريد: $email, الكود: $code");
-
-    if (email.isEmpty || code.isEmpty) {
-      print("⚠️ البريد أو الكود فارغ");
-      return;
-    }
+    if (email.isEmpty || code.isEmpty) return;
 
     isLoading.value = true;
+    print("🔐 Step 1: التحقق من الكود. البريد: $email, الكود: $code");
     try {
       authToken = await ApiService.verifyCode(email, code);
       if (authToken != null) {
@@ -79,28 +65,16 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Step 2: استكمال التسجيل النهائي وحفظ التوكن
   Future<bool> completeRegistration() async {
     final email = emailController.text.trim();
     final firstName = firstNameController.text.trim();
     final lastName = lastNameController.text.trim();
     final phone = phoneController.text.trim();
 
-    print(
-        "📝 Step 2: استكمال التسجيل. البريد: $email, الاسم: $firstName $lastName, الهاتف: $phone");
+    print("📝 Step 2: استكمال التسجيل. البريد: $email, الاسم: $firstName $lastName, الهاتف: $phone");
 
-    if (email.isEmpty ||
-        firstName.isEmpty ||
-        lastName.isEmpty ||
-        phone.isEmpty) {
-      print("⚠️ بعض البيانات فارغة");
-      return false;
-    }
-
-    if (authToken == null) {
-      print("⚠️ التوكن غير موجود");
-      return false;
-    }
+    if (email.isEmpty || firstName.isEmpty || lastName.isEmpty || phone.isEmpty) return false;
+    if (authToken == null) return false;
 
     isLoading.value = true;
     try {
@@ -129,7 +103,6 @@ class LoginController extends GetxController {
     }
   }
 
-  /// جلب البروفايل باستخدام آخر توكن مخزن
   Future<profileModel?> getProfile() async {
     try {
       final token = authToken ?? await MySharedPref.getToken();

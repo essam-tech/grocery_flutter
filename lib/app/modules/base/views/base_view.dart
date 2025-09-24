@@ -33,9 +33,8 @@ class BaseView extends GetView<BaseController> {
                 AddressView(
                   customerId: controller.loggedInCustomerId.value,
                   token: controller.loggedInToken.value,
-                  userPhone: controller.loggedInPhone.value,
                 ),
-                ProfileView(),
+                const ProfileView(),
               ],
             ),
           ),
@@ -65,7 +64,9 @@ class BaseView extends GetView<BaseController> {
                     const BottomNavigationBarItem(
                         label: '', icon: SizedBox.shrink()),
                     _mBottomNavItem(
-                        label: 'Address', icon: Constants.calendarIcon, index: 3),
+                        label: 'Address',
+                        icon: Constants.calendarIcon,
+                        index: 3),
                     _mBottomNavItem(
                         label: 'Profile', icon: Constants.userIcon, index: 4),
                   ],
@@ -74,7 +75,8 @@ class BaseView extends GetView<BaseController> {
               ),
             ),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
           floatingActionButton: Container(
             width: 56,
             height: 56,
