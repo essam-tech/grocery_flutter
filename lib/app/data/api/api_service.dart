@@ -34,7 +34,8 @@ class ApiService {
   }
 
   // ------------------ منتجات الصفحة الرئيسية ------------------
-  static Future<List<ProductModel>> getHomePageProducts({int pageSize = 10}) async {
+  static Future<List<ProductModel>> getHomePageProducts(
+      {int pageSize = 10}) async {
     final url = Uri.parse("$baseUrl/data-home-page-product-cards");
     final response = await http.post(
       url,
@@ -46,25 +47,29 @@ class ApiService {
       final List<dynamic> data = jsonData['data'] ?? [];
       return data.map((e) => ProductModel.fromJson(e)).toList();
     } else {
-      throw Exception("فشل جلب المنتجات: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل جلب المنتجات: ${response.statusCode} - ${response.body}");
     }
   }
 
   // ------------------ تفاصيل المنتج ------------------
   static Future<ProductModel> getProductById(String productId) async {
-    final url = Uri.parse("$baseUrl/details-with-images-and-variants/$productId");
+    final url =
+        Uri.parse("$baseUrl/details-with-images-and-variants/$productId");
     final response = await http.get(url, headers: headers);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       final data = jsonData['data']?['productDetails'] ?? jsonData['data'];
       return ProductModel.fromJson(data);
     } else {
-      throw Exception("فشل جلب تفاصيل المنتج: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل جلب تفاصيل المنتج: ${response.statusCode} - ${response.body}");
     }
   }
 
   // ------------------ أقسام المنتج ------------------
-  static Future<List<ProductSectionModel>> getProductSections(String productId) async {
+  static Future<List<ProductSectionModel>> getProductSections(
+      String productId) async {
     final url = Uri.parse("$baseUrl/sections/$productId");
     final response = await http.get(url, headers: headers);
     if (response.statusCode == 200) {
@@ -78,7 +83,8 @@ class ApiService {
 
   // ------------------ إرسال كود التحقق ------------------
   static Future<bool> sendVerificationCode(String email) async {
-    final url = Uri.parse("$authBaseUrl/email-verification/send-verification-code");
+    final url =
+        Uri.parse("$authBaseUrl/email-verification/send-verification-code");
     final response = await http.post(
       url,
       headers: authHeaders(),
@@ -112,7 +118,8 @@ class ApiService {
     required String email,
     required String phone,
   }) async {
-    final url = Uri.parse("$authBaseUrl/email-verification/complete-registration");
+    final url =
+        Uri.parse("$authBaseUrl/email-verification/complete-registration");
     final response = await http.post(
       url,
       headers: authHeaders(token: token),
@@ -139,7 +146,8 @@ class ApiService {
       final jsonData = json.decode(response.body);
       return profileModel.fromJson(jsonData['data']);
     } else {
-      throw Exception("فشل جلب البروفايل: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل جلب البروفايل: ${response.statusCode} - ${response.body}");
     }
   }
 
@@ -168,8 +176,10 @@ class ApiService {
   static Future<String> uploadProfileImage(String token, File imageFile) async {
     final uri = Uri.parse("$authBaseUrl/customer/profile/upload-avatar");
     final request = http.MultipartRequest("POST", uri);
-    request.headers.addAll({'Authorization': 'Bearer $token', 'Store-Domain': 'essam'});
-    request.files.add(await http.MultipartFile.fromPath("avatar", imageFile.path));
+    request.headers
+        .addAll({'Authorization': 'Bearer $token', 'Store-Domain': 'essam'});
+    request.files
+        .add(await http.MultipartFile.fromPath("avatar", imageFile.path));
 
     final response = await request.send();
     final resBody = await response.stream.bytesToString();
@@ -190,7 +200,8 @@ class ApiService {
       final data = json.decode(response.body)['data'];
       return CartHeader.fromJson(data);
     } else {
-      throw Exception("فشل جلب السلة: ${response.statusCode} - ${response.body}");
+      throw Exception(
+          "فشل جلب السلة: ${response.statusCode} - ${response.body}");
     }
   }
 
@@ -218,7 +229,8 @@ class ApiService {
     return CartDetail.fromJson(data);
   }
 
-  static Future<bool> deleteCartItem({required String token, required int cartDetailId}) async {
+  static Future<bool> deleteCartItem(
+      {required String token, required int cartDetailId}) async {
     final url = Uri.parse("$authBaseUrl/cart/details/$cartDetailId");
     final response = await http.delete(url, headers: authHeaders(token: token));
     return response.statusCode == 200;
@@ -239,15 +251,20 @@ class ApiService {
     return data['isSuccess'] ?? false;
   }
 
-  static Future<List<CustomerAddress>> getCustomerAddresses({required String token}) async {
+  static Future<List<CustomerAddress>> getCustomerAddresses(
+      {required String token}) async {
     final url = Uri.parse("$authBaseUrl/customer-address");
     final response = await http.get(url, headers: authHeaders(token: token));
     final data = json.decode(response.body)['data'] as List<dynamic>;
     return data.map((e) => CustomerAddress.fromJson(e)).toList();
   }
 
-  static Future<bool> deleteCustomerAddress({required String token, required String publicId}) async {
-    final url = Uri.parse("$authBaseUrl/customer-address/$publicId");
+  static Future<bool> deleteCustomerAddress({
+    required String token,
+    required int id, // بدل publicId
+  }) async {
+    final url =
+        Uri.parse("$authBaseUrl/customer-address/$id"); // نرسل id في الرابط
     final response = await http.delete(url, headers: authHeaders(token: token));
     final data = json.decode(response.body);
     return data['isSuccess'] ?? false;

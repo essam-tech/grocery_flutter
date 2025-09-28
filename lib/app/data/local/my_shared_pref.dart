@@ -98,8 +98,7 @@ class MySharedPref {
 
   static Future<void> removeAddress(CustomerAddress address) async {
     List<CustomerAddress> currentAddresses = getAddresses();
-    currentAddresses.removeWhere(
-        (a) => a.customerAddressPublicId == address.customerAddressPublicId);
+    currentAddresses.removeWhere((a) => a.id == address.id); // استخدمنا id بدل customerAddressPublicId
     await setAddresses(currentAddresses);
   }
 

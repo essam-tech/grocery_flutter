@@ -31,17 +31,13 @@ class AddAddressController extends GetxController {
     }
 
     final newAddress = CustomerAddress(
-      customerAddressId: 0,
-      customerAddressPublicId: "",
+      id: 0, // جديد عند الإنشاء
       customerId: customerId,
       streetAddress1: "موقع من الخريطة",
       streetAddress2: "",
       cityId: 1,
-      cityName: "Sana'a",
       regionId: 1,
-      regionName: "Amanat Al Asimah",
       countryId: 1,
-      countryName: "Yemen",
       postalCode: "",
       phone: userPhone?.isNotEmpty == true ? userPhone! : "000000000",
       isDefault: false,

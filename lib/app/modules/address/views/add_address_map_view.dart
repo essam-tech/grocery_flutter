@@ -5,7 +5,7 @@ import '../../../data/api/api_service.dart';
 
 class PickLocationPage extends StatelessWidget {
   final String token;
-  final int customerId; // حالياً ما نستخدمه في API، بس نخليه لو تحتاجه
+  final int customerId; // للـ API
   final String? userPhone;
 
   const PickLocationPage({
@@ -51,20 +51,17 @@ class PickLocationPage extends StatelessWidget {
                   return;
                 }
 
+                // ✅ إنشاء العنوان الجديد متوافق مع constructor الحالي
                 final newAddress = CustomerAddress(
-                  customerAddressId: 0,
-                  customerAddressPublicId: "",
-                  customerId: customerId, // ✅ أضف هذا
+                  id: 0, // معرف جديد للعنوان
+                  customerId: customerId,
                   streetAddress1: pickedData.address,
                   streetAddress2: pickedData.address.isNotEmpty == true
                       ? pickedData.address
-                      : null,
+                      : "",
                   cityId: 1,
-                  cityName: "Sana'a",
                   regionId: 1,
-                  regionName: "Amanat Al Asimah",
                   countryId: 1,
-                  countryName: "Yemen",
                   postalCode: "",
                   phone: phone,
                   isDefault: false,

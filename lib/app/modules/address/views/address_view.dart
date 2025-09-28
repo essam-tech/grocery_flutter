@@ -14,7 +14,6 @@ class AddressView extends StatelessWidget {
     required this.customerId,
     required this.token,
   }) : super(key: key) {
-    // تسجيل الـController إذا لم يكن موجود
     if (!Get.isRegistered<AddressController>()) {
       Get.put(AddressController(
         customerId: customerId,
@@ -30,12 +29,12 @@ class AddressView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Addresses', style: theme.textTheme.displaySmall),
+        title: Text('Addresses', style: theme.textTheme.titleLarge),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: controller.fetchAddresses,
+            onPressed: () => controller.fetchAddresses(),
           ),
         ],
       ),
@@ -48,31 +47,58 @@ class AddressView extends StatelessWidget {
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           itemCount: controller.addresses.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final CustomerAddress addr = controller.addresses[index];
-            final titleText = addr.streetAddress1?.isNotEmpty == true
-                ? addr.streetAddress1!
-                : '—';
-            final subtitleText = [
-              if ((addr.cityName?.isNotEmpty ?? false)) addr.cityName,
-              if ((addr.countryName?.isNotEmpty ?? false)) addr.countryName,
-            ].where((e) => e != null && e.isNotEmpty).join(', ');
+            final titleText =
+                addr.streetAddress1.isNotEmpty ? addr.streetAddress1 : '—';
+            final subtitleText =
+                'City ID: ${addr.cityId}, Country ID: ${addr.countryId}';
 
             return Card(
-              elevation: 2,
-              child: ListTile(
-                title: Text(titleText),
-                subtitle: Text(subtitleText.isNotEmpty
-                    ? subtitleText
-                    : 'City ID: ${addr.cityId}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    controller.deleteAddress(addr.customerAddressPublicId);
-                  },
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 4,
+              shadowColor: Colors.black26,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  // يمكنك إضافة فتح الخريطة أو تعديل العنوان هنا
+                },
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              titleText,
+                              style: theme.textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              subtitleText,
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          controller.deleteAddress(addr.id);
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -86,8 +112,8 @@ class AddressView extends StatelessWidget {
           child: const Icon(Icons.add),
           onPressed: () async {
             final result = await Get.to(() => PickLocationPage(
-                  token: controller.token,
-                  customerId: controller.customerId,
+                  token: token,
+                  customerId: customerId,
                 ));
             if (result == true) controller.fetchAddresses();
           },

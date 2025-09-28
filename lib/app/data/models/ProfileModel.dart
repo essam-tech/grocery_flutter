@@ -26,7 +26,6 @@ class profileModel {
     );
   }
 
-  // تحويل الكائن إلى JSON
   Map<String, dynamic> toJson() {
     return {
       'customerId': customerId,
@@ -38,7 +37,6 @@ class profileModel {
     };
   }
 
-  // دالة copyWith لإنشاء نسخة معدلة
   profileModel copyWith({
     int? customerId,
     String? firstName,
