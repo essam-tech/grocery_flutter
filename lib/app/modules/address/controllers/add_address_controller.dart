@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import '../../../data/models/CustomerAddress .dart';
-import '../../../data/api/api_service.dart';
+import '../../../modules/address/controllers/address_controller.dart';
 
 class AddAddressController extends GetxController {
-  GeoPoint? selectedPoint; // الموقع المختار
-  final int customerId; // رقم المستخدم الحالي
-  final String? userPhone; // رقم الهاتف من المستخدم
+  GeoPoint? selectedPoint;
+  final int customerId;
+  final String? userPhone;
 
   AddAddressController({
     required this.customerId,
@@ -15,15 +15,13 @@ class AddAddressController extends GetxController {
     print("📌 AddAddressController initialized for customerId: $customerId");
   }
 
-  /// لتحديث الموقع عند الضغط على الخريطة
   void setSelectedPoint(GeoPoint point) {
     selectedPoint = point;
     print(
         "📍 تم اختيار الموقع: Latitude=${point.latitude}, Longitude=${point.longitude}");
-    update(); // لتحديث الواجهة لو استخدمنا GetBuilder
+    update();
   }
 
-  /// حفظ العنوان على السيرفر
   Future<bool> saveAddress(String token) async {
     if (selectedPoint == null) {
       print("⚠️ لم يتم اختيار أي موقع بعد! لا يمكن الحفظ.");
@@ -31,7 +29,8 @@ class AddAddressController extends GetxController {
     }
 
     final newAddress = CustomerAddress(
-      id: 0, // جديد عند الإنشاء
+      id: 0,
+      publicId: "", // 🔹 سيتم توليده من السيرفر
       customerId: customerId,
       streetAddress1: "موقع من الخريطة",
       streetAddress2: "",
@@ -49,21 +48,10 @@ class AddAddressController extends GetxController {
     print("🔹 البيانات المرسلة:\n${newAddress.toJson()}");
 
     try {
-      final success = await ApiService.addCustomerAddress(
-        token: token,
-        address: newAddress,
-      );
-
-      if (success) {
-        print("✅ تم حفظ العنوان بنجاح!");
-      } else {
-        print("❌ فشل حفظ العنوان على السيرفر.");
-      }
-
-      return success;
-    } catch (e, stackTrace) {
+      await Get.find<AddressController>().addAddress(newAddress);
+      return true;
+    } catch (e) {
       print("🚨 حدث خطأ أثناء حفظ العنوان: $e");
-      print("📜 تفاصيل الخطأ:\n$stackTrace");
       return false;
     } finally {
       print("🔹 saveAddress انتهت العملية.");

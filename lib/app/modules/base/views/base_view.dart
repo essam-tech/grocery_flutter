@@ -13,7 +13,7 @@ import '../controllers/base_controller.dart';
 import '../../home/views/home_view.dart';
 
 class BaseView extends GetView<BaseController> {
-  const BaseView({Key? key}) : super(key: key);
+  BaseView({Key? key}) : super(key: key);
 
   final Color softGreen = const Color(0xFF40DF9F);
 
@@ -29,12 +29,12 @@ class BaseView extends GetView<BaseController> {
               children: [
                 HomeView(),
                 CategoryView(),
-                Center(),
+                Center(), // مكان فارغ للشاشة الثالثة
                 AddressView(
                   customerId: controller.loggedInCustomerId.value,
                   token: controller.loggedInToken.value,
                 ),
-                const ProfileView(),
+                ProfileView(),
               ],
             ),
           ),
@@ -58,15 +58,11 @@ class BaseView extends GetView<BaseController> {
                     _mBottomNavItem(
                         label: 'Home', icon: Constants.homeIcon, index: 0),
                     _mBottomNavItem(
-                        label: 'Category',
-                        icon: Constants.categoryIcon,
-                        index: 1),
+                        label: 'Category', icon: Constants.categoryIcon, index: 1),
                     const BottomNavigationBarItem(
                         label: '', icon: SizedBox.shrink()),
                     _mBottomNavItem(
-                        label: 'Address',
-                        icon: Constants.calendarIcon,
-                        index: 3),
+                        label: 'Address', icon: Constants.calendarIcon, index: 3),
                     _mBottomNavItem(
                         label: 'Profile', icon: Constants.userIcon, index: 4),
                   ],
@@ -75,8 +71,7 @@ class BaseView extends GetView<BaseController> {
               ),
             ),
           ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           floatingActionButton: Container(
             width: 56,
             height: 56,

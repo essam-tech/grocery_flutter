@@ -2,18 +2,21 @@ import 'package:get/get.dart';
 import '../controllers/address_controller.dart';
 
 class AddressBinding extends Bindings {
-  final int? customerId;
   final String? token;
-  final String? userPhone;
+  final int? customerId; // أضف هذا
 
-  AddressBinding({this.customerId, this.token, this.userPhone});
+  AddressBinding({this.token, this.customerId});
 
   @override
   void dependencies() {
-    // سجل Controller بطريقة آمنة
-    Get.lazyPut<AddressController>(() => AddressController(
-          customerId: customerId ?? 0, // 0 كقيمة افتراضية
-          token: token ?? '',
-        ));
+    if (token != null && token!.isNotEmpty && customerId != null) {
+      // سجل Controller بطريقة آمنة باستخدام token و customerId
+      Get.lazyPut<AddressController>(
+        () => AddressController(
+          token: token!,
+          customerId: customerId!,
+        ),
+      );
+    }
   }
 }

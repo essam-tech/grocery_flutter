@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:location_picker_flutter_map/location_picker_flutter_map.dart';
 import '../../../data/models/CustomerAddress .dart';
-import '../../../data/api/api_service.dart';
+import '../../../modules/address/controllers/address_controller.dart';
+import 'package:get/get.dart';
 
 class PickLocationPage extends StatelessWidget {
+  final int customerId;
   final String token;
-  final int customerId; // للـ API
   final String? userPhone;
 
   const PickLocationPage({
     Key? key,
-    required this.token,
     required this.customerId,
+    required this.token,
     this.userPhone,
   }) : super(key: key);
 
@@ -51,14 +52,12 @@ class PickLocationPage extends StatelessWidget {
                   return;
                 }
 
-                // ✅ إنشاء العنوان الجديد متوافق مع constructor الحالي
                 final newAddress = CustomerAddress(
-                  id: 0, // معرف جديد للعنوان
+                  id: 0,
+                  publicId: "",
                   customerId: customerId,
                   streetAddress1: pickedData.address,
-                  streetAddress2: pickedData.address.isNotEmpty == true
-                      ? pickedData.address
-                      : "",
+                  streetAddress2: pickedData.address.isNotEmpty ? pickedData.address : "",
                   cityId: 1,
                   regionId: 1,
                   countryId: 1,
@@ -70,24 +69,16 @@ class PickLocationPage extends StatelessWidget {
                 );
 
                 try {
-                  final success = await ApiService.addCustomerAddress(
-                    token: token,
-                    address: newAddress,
-                  );
-
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("✅ تم حفظ العنوان بنجاح")),
-                    );
-                    Navigator.pop(context, true);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("⚠️ فشل حفظ العنوان")),
-                    );
-                  }
-                } catch (e) {
+                  final controller = Get.find<AddressController>();
+                  await controller.addAddress(newAddress);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("❌ خطأ: $e")),
+                    const SnackBar(content: Text("✅ تم إضافة العنوان بنجاح")),
+                  );
+                  Navigator.pop(context, true);
+                } catch (e) {
+                  print("🚨 خطأ أثناء إضافة العنوان: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("❌ خطأ أثناء إضافة العنوان: $e")),
                   );
                 }
               },

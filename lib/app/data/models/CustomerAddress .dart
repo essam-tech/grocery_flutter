@@ -1,5 +1,6 @@
 class CustomerAddress {
   final int id;
+  final String publicId; // 🔹 مهم للحذف
   final int customerId;
   final String streetAddress1;
   final String streetAddress2;
@@ -14,6 +15,7 @@ class CustomerAddress {
 
   CustomerAddress({
     required this.id,
+    required this.publicId,
     required this.customerId,
     required this.streetAddress1,
     required this.streetAddress2,
@@ -30,6 +32,7 @@ class CustomerAddress {
   factory CustomerAddress.fromJson(Map<String, dynamic> json) {
     return CustomerAddress(
       id: json['id'] ?? 0,
+      publicId: json['customerAddressPublicId']?.toString() ?? "", // 🔹 اسم الحقل من السيرفر
       customerId: json['customerId'] ?? 0,
       streetAddress1: json['streetAddress1'] ?? "",
       streetAddress2: json['streetAddress2'] ?? "",
@@ -47,6 +50,7 @@ class CustomerAddress {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
+      "customerAddressPublicId": publicId, // 🔹 اسم الحقل الصحيح عند الإرسال
       "customerId": customerId,
       "streetAddress1": streetAddress1,
       "streetAddress2": streetAddress2,

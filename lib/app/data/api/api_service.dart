@@ -12,7 +12,7 @@ class ApiService {
   // 🔗 الرابط الأساسي للمنتجات
   static const String baseUrl = "https://maqadhi.com:56975/api/v2/product";
 
-  // 🔗 الرابط الأساسي للتحقق والتسجيل والبروفايل والسلة
+  // 🔗 الرابط الأساسي للتحقق والتسجيل والبروفايل والسلة والعناوين
   static const String authBaseUrl = "https://maqadhi.com:56976/api/v2";
 
   // 📝 Headers الثابتة للمنتجات
@@ -27,7 +27,7 @@ class ApiService {
       'Content-Type': 'application/json',
       'Store-Domain': 'essam',
     };
-    if (token != null) {
+    if (token != null && token.isNotEmpty) {
       map['Authorization'] = 'Bearer $token';
     }
     return map;
@@ -237,10 +237,19 @@ class ApiService {
   }
 
   // ------------------ Customer Address ------------------
-  static Future<bool> addCustomerAddress({
-    required String token,
-    required CustomerAddress address,
-  }) async {
+  // ------------------ جلب العناوين ------------------
+  static Future<List<CustomerAddress>> getCustomerAddresses(
+      {required String token}) async {
+    final url = Uri.parse("$authBaseUrl/customer-address");
+    final response = await http.get(url, headers: authHeaders(token: token));
+    final body = json.decode(response.body);
+    final data = body['data'] as List<dynamic>? ?? [];
+    return data.map((e) => CustomerAddress.fromJson(e)).toList();
+  }
+
+  // ------------------ إضافة عنوان ------------------
+  static Future<bool> addCustomerAddress(
+      {required String token, required CustomerAddress address}) async {
     final url = Uri.parse("$authBaseUrl/customer-address");
     final response = await http.post(
       url,
@@ -251,22 +260,28 @@ class ApiService {
     return data['isSuccess'] ?? false;
   }
 
-  static Future<List<CustomerAddress>> getCustomerAddresses(
-      {required String token}) async {
-    final url = Uri.parse("$authBaseUrl/customer-address");
-    final response = await http.get(url, headers: authHeaders(token: token));
-    final data = json.decode(response.body)['data'] as List<dynamic>;
-    return data.map((e) => CustomerAddress.fromJson(e)).toList();
-  }
+  // ------------------ حذف عنوان ------------------
+  static Future<bool> deleteCustomerAddress(
+      {required String token, required String publicId}) async {
+    if (token.isEmpty || publicId.isEmpty) {
+      print("⚠️ deleteCustomerAddress skipped: invalid token or publicId");
+      return false;
+    }
 
-  static Future<bool> deleteCustomerAddress({
-    required String token,
-    required int id, // بدل publicId
-  }) async {
-    final url =
-        Uri.parse("$authBaseUrl/customer-address/$id"); // نرسل id في الرابط
-    final response = await http.delete(url, headers: authHeaders(token: token));
-    final data = json.decode(response.body);
-    return data['isSuccess'] ?? false;
+    final url = Uri.parse("$authBaseUrl/customer-address/$publicId");
+    try {
+      final response =
+          await http.delete(url, headers: authHeaders(token: token));
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print("✅ تم حذف العنوان بنجاح: $publicId");
+        return true;
+      } else {
+        print("❌ فشل حذف العنوان من السيرفر: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("🚨 خطأ أثناء الحذف: $e");
+      return false;
+    }
   }
 }

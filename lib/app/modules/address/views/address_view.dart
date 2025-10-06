@@ -3,33 +3,30 @@ import 'package:get/get.dart';
 import '../../../components/no_data.dart';
 import '../controllers/address_controller.dart';
 import 'add_address_map_view.dart';
-import '../../../data/models/CustomerAddress .dart';
 
 class AddressView extends StatelessWidget {
   final int customerId;
   final String token;
 
-  AddressView({
-    Key? key,
-    required this.customerId,
-    required this.token,
-  }) : super(key: key) {
+  AddressView({Key? key, required this.customerId, required this.token})
+      : super(key: key) {
     if (!Get.isRegistered<AddressController>()) {
-      Get.put(AddressController(
-        customerId: customerId,
-        token: token,
-      ));
+      Get.put(AddressController(token: token, customerId: customerId));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AddressController>();
-    final theme = context.theme;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Addresses', style: theme.textTheme.titleLarge),
+        title: Text(
+          'عناويني',
+          style:
+              theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -43,83 +40,51 @@ class AddressView extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (controller.addresses.isEmpty) {
-          return const NoData(text: 'No addresses found');
+          return const NoData(text: 'لا توجد عناوين بعد');
         }
-
         return ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding:
+              const EdgeInsets.fromLTRB(16, 16, 16, 100), // padding سفلي فارغ
           itemCount: controller.addresses.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final CustomerAddress addr = controller.addresses[index];
-            final titleText =
-                addr.streetAddress1.isNotEmpty ? addr.streetAddress1 : '—';
-            final subtitleText =
-                'City ID: ${addr.cityId}, Country ID: ${addr.countryId}';
-
-            return Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              elevation: 4,
-              shadowColor: Colors.black26,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () {
-                  // يمكنك إضافة فتح الخريطة أو تعديل العنوان هنا
+            final addr = controller.addresses[index];
+            return ListTile(
+              leading: const Icon(Icons.location_on, color: Colors.green),
+              title: Text(addr.streetAddress1),
+              subtitle:
+                  Text('CityID: ${addr.cityId}, CountryID: ${addr.countryId}'),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.redAccent),
+                onPressed: () async {
+                  if (addr.publicId.isEmpty) {
+                    print("⚠️ لا يمكن حذف العنوان: publicId فارغ");
+                    Get.snackbar("خطأ", "لا يمكن حذف العنوان: publicId فارغ");
+                    return;
+                  }
+                  final result = await controller.deleteAddress(addr.publicId);
+                  if (result) {
+                    controller.fetchAddresses();
+                  }
                 },
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              titleText,
-                              style: theme.textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              subtitleText,
-                              style: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: Colors.grey[700]),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          controller.deleteAddress(addr.id);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
               ),
             );
           },
         );
       }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 60),
+        padding: const EdgeInsets.only(bottom: 40, right: 8),
         child: FloatingActionButton(
-          heroTag: 'add_address',
-          child: const Icon(Icons.add),
           onPressed: () async {
-            final result = await Get.to(() => PickLocationPage(
-                  token: token,
-                  customerId: customerId,
-                ));
+            final result = await Get.to(
+                () => PickLocationPage(token: token, customerId: customerId));
             if (result == true) controller.fetchAddresses();
           },
+          child: const Icon(Icons.add),
+          backgroundColor: theme.colorScheme.primary,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
