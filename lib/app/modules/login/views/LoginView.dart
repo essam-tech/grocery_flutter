@@ -100,8 +100,9 @@ class LoginView extends GetView<LoginController> {
                     _buildActionButton(
                       label: "Complete Registration",
                       onPressed: () async {
-                        await controller.completeRegistration();
-                        if (!controller.isLoading.value) {
+                        final done = await controller.completeRegistration();
+                        if (done && !controller.isLoading.value) {
+                          // ✅ Snackbar / Bottom Sheet فقط للعملية الأخيرة
                           Get.bottomSheet(
                             Container(
                               padding: const EdgeInsets.all(20),
@@ -127,14 +128,14 @@ class LoginView extends GetView<LoginController> {
                                   ),
                                   const SizedBox(height: 8),
                                   const Text(
-                                    "تم استكمال التسجيل بنجاح",
+                                    "يمكنك الآن تسجيل الدخول واستعراض حسابك.",
                                     style: TextStyle(fontSize: 16, color: Colors.black87),
                                   ),
                                   const SizedBox(height: 20),
                                   ElevatedButton(
                                     onPressed: () {
-                                      Get.back();
-                                      Get.back();
+                                      Get.back(); // يغلق الـ bottom sheet
+                                      Get.back(); // يعود للصفحة السابقة
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: softGreen,
@@ -173,6 +174,7 @@ class LoginView extends GetView<LoginController> {
         child: TextField(
           controller: controller.emailController,
           enabled: enabled,
+          keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             border: InputBorder.none,
             labelText: "Email",
@@ -192,13 +194,16 @@ class LoginView extends GetView<LoginController> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: TextField(
               controller: controller.codeController,
+              keyboardType: TextInputType.number,
               obscureText: controller.isCodeHidden.value,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 labelText: "Verification Code",
                 prefixIcon: Icon(Icons.lock, color: softGreen),
                 suffixIcon: IconButton(
-                  icon: Icon(controller.isCodeHidden.value ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(
+                    controller.isCodeHidden.value ? Icons.visibility_off : Icons.visibility,
+                  ),
                   onPressed: controller.toggleCodeVisibility,
                   color: softGreen,
                 ),

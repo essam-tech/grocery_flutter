@@ -5,29 +5,22 @@ import '../../../config/translations/localization_service.dart';
 import '../models/CustomerAddress .dart';
 
 class MySharedPref {
-  // منع إنشاء instance
   MySharedPref._();
 
-  // SharedPreferences instance
   static late SharedPreferences _sharedPreferences;
 
-  // 🔑 Keys
+  // 🔑 المفاتيح
   static const String _fcmTokenKey = 'fcm_token';
   static const String _currentLocalKey = 'current_local';
   static const String _lightThemeKey = 'is_theme_light';
   static const String _authTokenKey = 'auth_token';
   static const String _userIdKey = 'user_id';
   static const String _userPhoneKey = 'user_phone';
-  static const String _addressesKey = 'user_addresses'; // جديد
+  static const String _addressesKey = 'user_addresses';
 
-  /// ✅ تهيئة SharedPreferences
+  /// تهيئة SharedPreferences
   static Future<void> init() async {
     _sharedPreferences = await SharedPreferences.getInstance();
-  }
-
-  /// تعيين instance يدويًا (اختياري)
-  static void setStorage(SharedPreferences sharedPreferences) {
-    _sharedPreferences = sharedPreferences;
   }
 
   // ---------------- 🌙 Theme ----------------
@@ -55,25 +48,36 @@ class MySharedPref {
   static String? getFcmToken() => _sharedPreferences.getString(_fcmTokenKey);
 
   // ---------------- 🔑 Auth Token ----------------
-  static Future<void> setToken(String token) async =>
-      await _sharedPreferences.setString(_authTokenKey, token);
+  static Future<void> setToken(String token) async {
+    if (token.isEmpty) return;
+    await _sharedPreferences.setString(_authTokenKey, token);
+    debugPrint("✅ تم حفظ التوكن محليًا");
+  }
 
-  static String? getToken() => _sharedPreferences.getString(_authTokenKey);
+  static String? getToken() {
+    final token = _sharedPreferences.getString(_authTokenKey);
+    if (token == null || token.isEmpty) {
+      debugPrint("⚠️ لا يوجد توكن محفوظ");
+      return null;
+    }
+    return token;
+  }
 
-  static Future<void> clearToken() async =>
-      await _sharedPreferences.remove(_authTokenKey);
+  static Future<void> clearToken() async {
+    await _sharedPreferences.remove(_authTokenKey);
+    debugPrint("🧹 تم مسح التوكن من الجهاز");
+  }
 
   static bool isLoggedIn() =>
       _sharedPreferences.containsKey(_authTokenKey) &&
       (_sharedPreferences.getString(_authTokenKey)?.isNotEmpty ?? false);
 
-  // ---------------- 🧾 User ID ----------------
+  // ---------------- 👤 User Info ----------------
   static Future<void> setUserId(int id) async =>
       await _sharedPreferences.setInt(_userIdKey, id);
 
   static int? getUserId() => _sharedPreferences.getInt(_userIdKey);
 
-  // ---------------- 🧾 User Phone ----------------
   static Future<void> setPhone(String phone) async =>
       await _sharedPreferences.setString(_userPhoneKey, phone);
 
@@ -81,13 +85,17 @@ class MySharedPref {
 
   // ---------------- 🏠 Addresses ----------------
   static Future<void> setAddresses(List<CustomerAddress> addresses) async {
-    List<String> jsonList = addresses.map((a) => jsonEncode(a.toJson())).toList();
+    List<String> jsonList =
+        addresses.map((a) => jsonEncode(a.toJson())).toList();
     await _sharedPreferences.setStringList(_addressesKey, jsonList);
   }
 
   static List<CustomerAddress> getAddresses() {
-    List<String> jsonList = _sharedPreferences.getStringList(_addressesKey) ?? [];
-    return jsonList.map((e) => CustomerAddress.fromJson(jsonDecode(e))).toList();
+    List<String> jsonList =
+        _sharedPreferences.getStringList(_addressesKey) ?? [];
+    return jsonList
+        .map((e) => CustomerAddress.fromJson(jsonDecode(e)))
+        .toList();
   }
 
   static Future<void> addAddress(CustomerAddress newAddress) async {
@@ -98,10 +106,14 @@ class MySharedPref {
 
   static Future<void> removeAddress(CustomerAddress address) async {
     List<CustomerAddress> currentAddresses = getAddresses();
-    currentAddresses.removeWhere((a) => a.id == address.id); // استخدمنا id بدل customerAddressPublicId
+    currentAddresses.removeWhere(
+        (a) => a.publicId == address.publicId); // ✅ تم التصحيح هنا
     await setAddresses(currentAddresses);
   }
 
   // ---------------- 🧹 Clear All ----------------
-  static Future<void> clear() async => await _sharedPreferences.clear();
+  static Future<void> clear() async {
+    await _sharedPreferences.clear();
+    debugPrint("🧹 تم مسح جميع البيانات من SharedPreferences");
+  }
 }

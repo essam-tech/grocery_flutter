@@ -23,7 +23,7 @@ class ProductCountItem extends StatelessWidget {
         CustomIconButton(
           width: 36.w,
           height: 36.h,
-          onPressed: () => cartController.decreaseQuantity(product),
+          onPressed: () => cartController.decreaseQuantityApi(product),
           icon: SvgPicture.asset(Constants.removeIcon, fit: BoxFit.none),
           backgroundColor: theme.cardColor,
         ),
@@ -37,7 +37,7 @@ class ProductCountItem extends StatelessWidget {
         CustomIconButton(
           width: 36.w,
           height: 36.h,
-          onPressed: () => cartController.increaseQuantity(product),
+          onPressed: () => cartController.increaseQuantityApi(product),
           icon: SvgPicture.asset(Constants.addIcon, fit: BoxFit.none),
           backgroundColor: theme.primaryColor,
         ),
