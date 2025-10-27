@@ -22,82 +22,56 @@ class LoginController extends GetxController {
     print("🔑 isCodeHidden: ${isCodeHidden.value}");
   }
 
-  // ------------------ إرسال كود التحقق ------------------
   Future<void> sendVerificationCode() async {
     final email = emailController.text.trim();
-    if (email.isEmpty) {
-      print("⚠️ البريد الإلكتروني فارغ");
-      return;
-    }
+    if (email.isEmpty) return;
 
     isLoading.value = true;
-    print("📩 Step 0: إرسال كود التحقق إلى $email");
     try {
-      final success = await ApiService.sendVerificationCode(email);
-      if (success) {
+      if (await ApiService.sendVerificationCode(email)) {
         step.value = 1;
-        print("✅ تم إرسال الكود بنجاح، الانتقال إلى خطوة التحقق");
+        print("✅ Step 0: الكود تم إرساله، الانتقال للخطوة 1");
       }
     } catch (e) {
-      print("❌ خطأ أثناء إرسال الكود: $e");
+      print("❌ Step 0 Error: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ------------------ التحقق من الكود ------------------
   Future<void> verifyCode() async {
     final email = emailController.text.trim();
     final code = codeController.text.trim();
-
-    if (email.isEmpty || code.isEmpty) {
-      print("⚠️ البريد أو الكود فارغ");
-      return;
-    }
+    if (email.isEmpty || code.isEmpty) return;
 
     isLoading.value = true;
-    print("🔐 Step 1: التحقق من الكود ($code) للبريد $email");
-
     try {
-      // ✅ التغيير الأساسي: إضافة userAgent
-      final token = await ApiService.verifyCode(email, code);
-      if (token.isNotEmpty) {
-        authToken = token;
-        await MySharedPref.setToken(token);
+      authToken = await ApiService.verifyCode(email, code);
+      if (authToken != null) {
+        await MySharedPref.setToken(authToken!,
+            expiresIn: const Duration(minutes: 5)); // توكن قصير صالح 5 دقائق
         step.value = 2;
-        print("✅ التحقق ناجح وتم حفظ التوكن: $token");
-      } else {
-        print("❌ لم يتم استلام التوكن بعد التحقق");
+        print("✅ Step 1: التوكن القصير مستلم وحفظ في SharedPreferences");
       }
     } catch (e) {
-      print("❌ خطأ أثناء التحقق من الكود: $e");
+      print("❌ Step 1 Error: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ------------------ استكمال التسجيل ------------------
   Future<bool> completeRegistration() async {
     final email = emailController.text.trim();
     final firstName = firstNameController.text.trim();
     final lastName = lastNameController.text.trim();
     final phone = phoneController.text.trim();
 
-    if ([email, firstName, lastName, phone].any((e) => e.isEmpty)) {
-      print("⚠️ يرجى ملء جميع الحقول قبل المتابعة");
-      return false;
-    }
-
-    if (authToken == null || authToken!.isEmpty) {
-      print("⚠️ لا يوجد توكن متاح لاستكمال التسجيل");
-      return false;
-    }
+    if ([email, firstName, lastName, phone].any((e) => e.isEmpty)) return false;
+    if (authToken == null) return false;
 
     isLoading.value = true;
-    print("📝 Step 2: استكمال التسجيل بـ $email - $firstName $lastName ($phone)");
-
     try {
-      final newToken = await ApiService.completeRegistration(
+      final token = await ApiService.completeRegistration(
         token: authToken!,
         email: email,
         firstName: firstName,
@@ -105,35 +79,27 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      if (newToken.isNotEmpty) {
-        await MySharedPref.setToken(newToken);
-        authToken = newToken;
-        print("✅ تم استكمال التسجيل وتحديث التوكن بنجاح");
+      if (token.isNotEmpty) {
+        await MySharedPref.setToken(token,
+            expiresIn: const Duration(days: 30)); // توكن طويل
+        authToken = token;
+        print("✅ Step 2: التسجيل مكتمل والتوكن الطويل محفوظ");
         return true;
-      } else {
-        print("❌ فشل استكمال التسجيل (التوكن فارغ)");
-        return false;
       }
     } catch (e) {
-      print("❌ خطأ أثناء استكمال التسجيل: $e");
+      print("❌ Step 2 Error: $e");
       return false;
     } finally {
       isLoading.value = false;
     }
+    return false;
   }
 
-  // ------------------ جلب البروفايل ------------------
   Future<profileModel?> getProfile() async {
     try {
-      final token = authToken ?? await MySharedPref.getToken();
-      if (token == null || token.isEmpty) {
-        print("⚠️ لا يوجد توكن صالح لجلب البروفايل");
-        return null;
-      }
-
-      final profile = await ApiService.getProfile(token);
-      print("✅ تم جلب بيانات البروفايل بنجاح: ${profile.firstName}");
-      return profile;
+      final token = authToken ?? MySharedPref.getToken();
+      if (token == null) return null;
+      return await ApiService.getProfile(token);
     } catch (e) {
       print("❌ خطأ أثناء جلب البروفايل: $e");
       return null;
@@ -147,7 +113,7 @@ class LoginController extends GetxController {
     firstNameController.dispose();
     lastNameController.dispose();
     phoneController.dispose();
-    print("🧹 تم التخلص من الـ Controllers");
+    print("🧹 Controllers disposed");
     super.onClose();
   }
 }

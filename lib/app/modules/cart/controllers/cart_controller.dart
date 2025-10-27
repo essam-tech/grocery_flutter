@@ -30,32 +30,40 @@ class CartController extends GetxController {
     token = MySharedPref.getToken() ?? '';
   }
 
+  /// ✅ التأكد من أن التوكن موجود وصالح
+  bool _ensureToken() {
+    refreshToken();
+    if (token.isEmpty) {
+      print("🚨 Token missing! Redirecting to login.");
+      Get.offAllNamed('/login');
+      return false;
+    }
+    return true;
+  }
+
+  // 🧺 إضافة منتج إلى السلة (محلياً)
   void addProduct(CartDetail item) {
     final index = products.indexWhere((e) => e.productId == item.productId);
     if (index != -1) {
       products[index].quantity += item.quantity;
       products[index].total =
           products[index].unitPrice * products[index].quantity;
-      print(
-          "ℹ️ Increased quantity for product: ${item.productName}, new qty: ${products[index].quantity}");
     } else {
       products.add(item);
-      print("ℹ️ Added new product to cart: ${item.productName}");
     }
     products.refresh();
   }
 
-  /// 🛒 إضافة منتج للسلة عبر الـ API
+  // 🧩 إضافة منتج للسلة عبر الـ API
   Future<void> addProductApi(CartDetail item) async {
-    if (token.isEmpty) {
-      refreshToken();
-      if (token.isEmpty) {
-        print("⚠️ Token not set. Cannot add product to API");
-        return;
-      }
-    }
+    if (!_ensureToken()) return;
+
+    if (item.quantity <= 0) item.quantity = 1; // حماية من الكمية صفر
 
     try {
+      print("🧾 Sending add-to-cart: ${item.toJson()}");
+      print("🔑 Token used: $token");
+
       final addedItem = await ApiService.addCartItem(
         token: token,
         productId: item.productId,
@@ -75,9 +83,9 @@ class CartController extends GetxController {
     }
   }
 
+  // ⬆️ زيادة كمية منتج
   Future<void> increaseQuantityApi(CartDetail item) async {
-    if (token.isEmpty) refreshToken();
-    if (token.isEmpty) return;
+    if (!_ensureToken()) return;
 
     try {
       await ApiService.addCartItem(
@@ -104,9 +112,9 @@ class CartController extends GetxController {
     }
   }
 
+  // ⬇️ تقليل الكمية
   Future<void> decreaseQuantityApi(CartDetail item) async {
-    if (token.isEmpty) refreshToken();
-    if (token.isEmpty) return;
+    if (!_ensureToken()) return;
 
     try {
       await ApiService.deleteCartItem(
@@ -131,9 +139,9 @@ class CartController extends GetxController {
     }
   }
 
+  // ❌ حذف منتج من السلة
   Future<void> removeItemApi(CartDetail item) async {
-    if (token.isEmpty) refreshToken();
-    if (token.isEmpty) return;
+    if (!_ensureToken()) return;
 
     try {
       await ApiService.deleteCartItem(
@@ -151,11 +159,13 @@ class CartController extends GetxController {
     products.refresh();
   }
 
+  // 🧹 مسح السلة بالكامل
   void clearCart() {
     products.clear();
     print("ℹ️ Cart cleared");
   }
 
+  // 🧮 إحصائيات
   int get totalItems => products.fold(0, (sum, item) => sum + item.quantity);
   double get totalPrice => totalAmount.value;
 }

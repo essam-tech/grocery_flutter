@@ -6,19 +6,23 @@ class AddressController extends GetxController {
   final String token;
   final int customerId;
 
-  AddressController({required this.token, required this.customerId});
+  AddressController({
+    required this.token,
+    required this.customerId,
+  });
 
   var isLoading = false.obs;
   var addresses = <CustomerAddress>[].obs;
 
-  // ------------------ جلب العناوين ------------------
+  // ------------------ 🔹 جلب العناوين ------------------
   Future<void> fetchAddresses() async {
     try {
       isLoading.value = true;
       final data = await ApiService.getCustomerAddresses(token: token);
       addresses.assignAll(data);
-      data.forEach(
-          (a) => print("🧭 عنوان موجود: id=${a.id}, publicId=${a.publicId}"));
+      data.forEach((a) {
+        print("🧭 عنوان موجود: id=${a.id}, publicId=${a.publicId}");
+      });
       print("📌 تم جلب ${data.length} عنوان من السيرفر");
     } catch (e) {
       print("❌ فشل جلب العناوين: $e");
@@ -28,7 +32,7 @@ class AddressController extends GetxController {
     }
   }
 
-  // ------------------ حذف عنوان ------------------
+  // ------------------ 🔹 حذف عنوان ------------------
   Future<bool> deleteAddress(String publicId) async {
     if (publicId.isEmpty) {
       print("⚠️ لا يمكن حذف العنوان: publicId فارغ");
@@ -38,7 +42,9 @@ class AddressController extends GetxController {
     try {
       isLoading.value = true;
       final success = await ApiService.deleteCustomerAddress(
-          token: token, publicId: publicId);
+        token: token,
+        publicId: publicId,
+      );
       if (success) {
         addresses.removeWhere((addr) => addr.publicId == publicId);
         print("🗑️ تم حذف العنوان publicId=$publicId");
@@ -54,15 +60,17 @@ class AddressController extends GetxController {
     }
   }
 
-  // ------------------ إضافة عنوان ------------------
+  // ------------------ 🔹 إضافة عنوان ------------------
   Future<void> addAddress(CustomerAddress address) async {
     try {
       isLoading.value = true;
-      final success =
-          await ApiService.addCustomerAddress(token: token, address: address);
+      final success = await ApiService.addCustomerAddress(
+        token: token,
+        address: address,
+      );
       if (success) {
         print("✅ تم إرسال العنوان للسيرفر بنجاح");
-        await fetchAddresses(); // لتحديث القائمة مع publicId من السيرفر
+        await fetchAddresses(); // تحديث القائمة بعد الإضافة
       } else {
         print("❌ فشل إرسال العنوان للسيرفر");
       }

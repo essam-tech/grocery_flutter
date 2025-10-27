@@ -45,12 +45,32 @@ class CartHeader {
       shippingFee: (json['shippingFee'] ?? 0).toDouble(),
       taxAmountTotal: (json['taxAmountTotal'] ?? 0).toDouble(),
       amount: (json['amount'] ?? 0).toDouble(),
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['createdAt'] ?? DateTime.now().toIso8601String()),
       currency: Currency.fromJson(json['currency'] ?? {}),
       details: (json['details'] as List<dynamic>? ?? [])
           .map((e) => CartDetail.fromJson(e))
           .toList(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cartHeaderId': cartHeaderId,
+      'cartTotal': cartTotal,
+      'customerId': customerId,
+      'warehouseId': warehouseId,
+      'sessionId': sessionId,
+      'couponCode': couponCode,
+      'discountAmount': discountAmount,
+      'discountCoupon': discountCoupon,
+      'shippingFee': shippingFee,
+      'taxAmountTotal': taxAmountTotal,
+      'amount': amount,
+      'createdAt': createdAt.toIso8601String(),
+      'currency': currency.toJson(),
+      'details': details.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
@@ -104,6 +124,24 @@ class CartDetail {
       note: json['note'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cartDetailId': cartDetailId,
+      'productId': productId,
+      'productName': productName,
+      'description': description,
+      'imageUrl': imageUrl,
+      'productVariantId': productVariantId,
+      'quantity': quantity,
+      'unitPrice': unitPrice,
+      'taxAmount': taxAmount,
+      'discountAmount': discountAmount,
+      'total': total,
+      'options': options.map((e) => e.toJson()).toList(),
+      'note': note,
+    };
+  }
 }
 
 class CartOption {
@@ -120,6 +158,14 @@ class CartOption {
       type: json['type'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'value': value.toJson(),
+      'type': type,
+    };
+  }
 }
 
 class CartOptionValue {
@@ -133,6 +179,13 @@ class CartOptionValue {
       code: json['code'] ?? '',
       label: json['label'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'label': label,
+    };
   }
 }
 
@@ -159,5 +212,15 @@ class Currency {
       symbol: json['symbol'] ?? '',
       icon: json['icon'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'currencyId': currencyId,
+      'code': code,
+      'currencyName': currencyName,
+      'symbol': symbol,
+      'icon': icon,
+    };
   }
 }

@@ -23,6 +23,8 @@ class ProductModel {
 
   // ======= الحقول الجديدة =======
   int orderQuantity; // عدد المنتجات المختارة
+  int? selectedVariantId; // ⚡ لتحديد الـ variant المختار
+
   String get availability =>
       (productQuantity != null && productQuantity! > 0) ? 'متوفرة' : 'غير متوفرة';
 
@@ -54,6 +56,7 @@ class ProductModel {
     this.orderQuantity = 0,
     this.images,
     this.variants,
+    this.selectedVariantId,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -62,28 +65,13 @@ class ProductModel {
       productName: json['productName'] ?? '',
       description: json['description'],
       storeId: json['storeId'],
-
-      // 👇 دعم تعدد أسماء السعر
-      price: (json['price'] ??
-              json['productPrice'] ??
-              json['salePrice']) !=
-              null
-          ? (json['price'] ??
-                  json['productPrice'] ??
-                  json['salePrice'] as num)
-              .toDouble()
+      price: (json['price'] ?? json['productPrice'] ?? json['salePrice']) != null
+          ? (json['price'] ?? json['productPrice'] ?? json['salePrice'] as num).toDouble()
           : 0.0,
-
-      // 👇 دعم تعدد أسماء السعر بعد الخصم
-      discountedPrice: (json['discountedPrice'] ??
-                  json['variantDiscountPrice']) !=
-              null
-          ? (json['discountedPrice'] ??
-                  json['variantDiscountPrice'] as num)
-              .toDouble()
+      discountedPrice: (json['discountedPrice'] ?? json['variantDiscountPrice']) != null
+          ? (json['discountedPrice'] ?? json['variantDiscountPrice'] as num).toDouble()
           : null,
-
-      productQuantity: (json['productQuantity'] != null)
+      productQuantity: json['productQuantity'] != null
           ? (json['productQuantity'] as num).toDouble()
           : 0.0,
       categoryName: json['categoryName'],
@@ -96,7 +84,7 @@ class ProductModel {
       currencyCode: json['currencyCode'],
       currencySymbol: json['currencySymbol'],
       productAdvancedInfoId: json['productAdvancedInfoId'],
-      discountPercent: (json['discountPercent'] != null)
+      discountPercent: json['discountPercent'] != null
           ? (json['discountPercent'] as num).toDouble()
           : 0.0,
       subtitle: json['subtitle'],
@@ -112,6 +100,7 @@ class ProductModel {
               (json['variantDetail'] as List)
                   .map((x) => ProductVariant.fromJson(x)))
           : [],
+      selectedVariantId: null,
     );
   }
 
@@ -119,7 +108,7 @@ class ProductModel {
     return {
       'productId': productId,
       'productName': productName,
-      'description': description,
+      'description': description ?? '',
       'storeId': storeId,
       'price': price,
       'productQuantity': productQuantity,
@@ -139,6 +128,7 @@ class ProductModel {
       'promoTitle': promoTitle,
       'hasProductVariants': hasProductVariants,
       'orderQuantity': orderQuantity,
+      'selectedVariantId': selectedVariantId ?? 0,
       'images': images?.map((e) => e.toJson()).toList(),
       'variants': variants?.map((e) => e.toJson()).toList(),
     };
@@ -184,7 +174,7 @@ class ProductVariant {
   final String? sku;
   final double? variantSalePrice;
   final double? variantDiscountPrice;
-  final double? varianQuantityt;
+  final double? variantQuantity;
   final bool? isDefault;
 
   ProductVariant({
@@ -194,7 +184,7 @@ class ProductVariant {
     this.sku,
     this.variantSalePrice,
     this.variantDiscountPrice,
-    this.varianQuantityt,
+    this.variantQuantity,
     this.isDefault,
   });
 
@@ -203,14 +193,14 @@ class ProductVariant {
         productId: json['productId'],
         productName: json['productName'],
         sku: json['sku'],
-        variantSalePrice: (json['variantSalePrice'] != null)
+        variantSalePrice: json['variantSalePrice'] != null
             ? (json['variantSalePrice'] as num).toDouble()
             : null,
-        variantDiscountPrice: (json['variantDiscountPrice'] != null)
+        variantDiscountPrice: json['variantDiscountPrice'] != null
             ? (json['variantDiscountPrice'] as num).toDouble()
             : null,
-        varianQuantityt: (json['varianQuantityt'] != null)
-            ? (json['varianQuantityt'] as num).toDouble()
+        variantQuantity: json['variantQuantity'] != null
+            ? (json['variantQuantity'] as num).toDouble()
             : null,
         isDefault: json['isDefault'],
       );
@@ -222,7 +212,7 @@ class ProductVariant {
         'sku': sku,
         'variantSalePrice': variantSalePrice,
         'variantDiscountPrice': variantDiscountPrice,
-        'varianQuantityt': varianQuantityt,
+        'variantQuantity': variantQuantity,
         'isDefault': isDefault,
       };
 }

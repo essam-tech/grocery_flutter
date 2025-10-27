@@ -69,13 +69,8 @@ class HomeController extends GetxController {
 
   /// --- تغيير الثيم ---
   Future<void> onChangeThemePressed() async {
-    // تغيير الثيم من MyTheme
     MyTheme.changeTheme();
-
-    // تحديث القيمة الحالية من SharedPref
     isLightTheme.value = await MySharedPref.getThemeIsLight();
-
-    // تحديث الـ UI
     update(['Theme']);
   }
 
@@ -89,14 +84,21 @@ class HomeController extends GetxController {
   /// --- جلب بيانات البروفايل ---
   Future<void> fetchProfile() async {
     try {
-      final token = await MySharedPref.getToken(); // 🔑 انتبه لـ await
-      if (token == null || token.isEmpty) return; // لو ما فيه توكن، نرجع
+      final token = await MySharedPref.getToken();
+      if (token == null || token.isEmpty) return;
 
       final fetchedProfile = await ApiService.getProfile(token);
       profile.value = fetchedProfile;
       print("✅ جلب البروفايل ناجح: ${fetchedProfile.firstName}");
     } catch (e) {
-      print("Error fetching profile: $e");
+      final errorStr = e.toString();
+      if (errorStr.contains("Unauthorized") || errorStr.contains("Token expired")) {
+        print("🚨 Token expired أو منتهي - سيتم مسح التوكن وطلب تسجيل الدخول");
+        // await MySharedPref.clearToken();
+        // يمكنك هنا إعادة التوجيه لصفحة تسجيل الدخول إذا أردت
+      } else {
+        print("Error fetching profile: $e");
+      }
     }
   }
 }
